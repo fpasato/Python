@@ -48,8 +48,9 @@ def verifica_cpf(cpf):
         print(f"O CPF {cpf[0:3]}.{cpf[3:6]}.{cpf[6:9]}-{d1}{d2} é INVÁLIDO")
         
 
-cpf = input('Digite o CPF sem pontos ou traços (ex.: 12345678900): ')
-
-soma = 0
+cpf = input('Digite o CPF sem pontos ou traços (ex.: 12345678900): ').strip()
 
 verifica_cpf(cpf)
+
+
+
