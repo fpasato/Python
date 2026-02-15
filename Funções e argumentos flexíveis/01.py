@@ -1,6 +1,29 @@
-# Exercício: Mini Sistema de Análise de Usuários
-# Você vai criar um pequeno sistema que analisa 
-# um conjunto de usuários e gera relatórios.
+"""
+Parte 1 – Criação de Usuário
+
+Objetivo:
+Criar a função:
+
+    criar_usuario(nome, idade, ativo=True, *pontuacoes, **extras)
+
+Regras:
+- Utilizar corretamente *args (pontuacoes) e **kwargs (extras).
+- As pontuações devem ser armazenadas como lista.
+- Montar e retornar um dicionário no formato:
+
+    {
+        "nome": ...,
+        "idade": ...,
+        "ativo": ...,
+        "pontuacoes": [...],
+        ...extras
+    }
+
+- A função deve apenas criar e retornar o usuário.
+- Não deve gerenciar lista global.
+- Deve funcionar mesmo se nenhuma pontuação for passada.
+"""
+
 
 def criar_usuario(nome, idade, ativo=True, *pontuacoes, **extras):
 
@@ -19,8 +42,7 @@ def criar_usuario(nome, idade, ativo=True, *pontuacoes, **extras):
     return ficha
 
 u = criar_usuario("Ana", 22, True, 10, 8, 9, cidade="SP", premium=True) 
-print(u) # {'nome': 'Ana', 'idade': 22, 'ativo': True, 'pontuacoes': [10, 8, 9], 'cidade': 'SP', 'premium': True}
-
+# print(u) # {'nome': 'Ana', 'idade': 22, 'ativo': True, 'pontuacoes': [10, 8, 9], 'cidade': 'SP', 'premium': True}
 
 
 usuarios = [
@@ -30,41 +52,11 @@ usuarios = [
     # {"nome": "Maria", "idade": 30, "ativo": True, "pontuacoes": [5, 8, 6]},
 ]
 
-
-
-# 1️⃣ Retornar apenas usuários ativos
-def usuarios_ativos(usuarios):
-    active_users = [user for user in usuarios if user['ativo'] == True]
-    return active_users
-    
-usuarios_ativos(usuarios) # retonra ficha de maria e ana
-
-
-
-
-# 2️⃣ Retornar nomes únicos
-def nomes_unicos(usuarios):
-    nomes = {user['nome'] for user in usuarios}
-    return nomes
-
-nomes_unicos(usuarios) #{'Carlos', 'Maria', 'Ana'}
-
-
-# 3️⃣ Retornar usuários maiores de idade
-def maiores_de_idade(usuarios):
-    maiores_idade = [users for users in usuarios if users['idade'] > 17]
-    return maiores_idade
-
-maiores_de_idade(usuarios)
-
-
-
-# 4️⃣ Calcular média de pontuação de cada usuário
-def medias(usuarios):
-    medias = {item['nome']:round(sum(item['pontuacoes'])/len(item['pontuacoes']), 2) for item in usuarios if item['pontuacoes']}
-    return medias 
-
-print(medias(usuarios)) #{'Ana': 9.0, 'Carlos': 5.5, 'Maria': 8.67}
-#obs: caso nome se repetir o valor da media ira se atualizar
+a = list(filter(lambda user: user['ativo'], usuarios))
+b = set(map(lambda user: user['nome'], usuarios))
+c = list(filter(lambda user: user['idade'] >= 18 , usuarios))
+d = dict(map(
+    lambda user:(user['nome'], round(sum(user['pontuacoes']) / len(user['pontuacoes']),  2) if user['pontuacoes'] else None), 
+    usuarios))
 
 
