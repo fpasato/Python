@@ -1,0 +1,28 @@
+.login-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    background-color: #F5F7FA !important;
+    background: #F5F7FA !important;
+    color: #1F2937 !important;
+
+    width: 400px;
+    padding: 20px;
+    border-radius: 10px !important;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.input-field {
+    border-radius: 15px;
+    padding: 5px;
+}
+.login-icon {
+    width: 150px;
+    height: 150px;
+}
+.logo-row {
+    width: 100%;
+    justify-content: center;
+}

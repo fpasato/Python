@@ -1,0 +1,12 @@
+
+.q-card.section-container {
+    border-radius: 10px !important;
+    background: #cdcdcd !important;
+
+    width: 20rem !important;
+    height: auto !important;
+
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    grid-template-rows: 1fr !important;
+}

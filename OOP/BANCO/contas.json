@@ -1,43 +1,26 @@
 {
-    "68415324698": {         
-        "titular": "Fernando Henrique",  
-        "contas": [
-            {
-                "tipo": "corrente",
-                "id": "12345678",           
-                "saldo": 1000,
-                "limite_extra": 1000,
-                "historico": [
-                    "20/10 15:30:00 - Transferência enviada",
-                    "20/10 15:30:00 - Login realizado",
-                    "20/10 15:30:00 - Depósito recebido"
-                ]
-            },
-            {
-                "tipo": "poupanca", 
-                "id": "87654321",          
-                "saldo": 2000
-            }
-        ]
-    },
-    "12345678901": {
-        "titular": "Maria Silva",
-        "contas": [
-            {
-                "tipo": "corrente",
-                "id": "11111111",
-                "saldo": 500,
-                "limite_extra": 1000,
-                "extrato": [
-                    "20/10 15:31:00 - Saque R$100,00",
-                    "20/10 15:38:00 - Depósito R$500,00"
-                ],
-                "historico": [
-                    "20/10 15:30:00 - Login realizado",
-                    "20/10 15:31:00 - Saque Realizado",
-                    "20/10 15:38:00 - Depósito recebido"
-                ]
-            }
-        ]
+  "68415324698": {
+    "nome": "Fernando Henrique",
+    "senha": "123456",
+    "contas": {
+      "12345678": {
+        "tipo": "corrente",
+        "saldo": 1000,
+        "limite_extra": 1000,
+        "historico": []
+      }
     }
+  },
+
+  "12345678901": {
+    "nome": "Maria Silva",
+    "senha": "123456",
+    "contas": {
+      "11111111": {
+        "tipo": "corrente",
+        "saldo": 500,
+        "extrato": []
+      }
+    }
+  }
 }
