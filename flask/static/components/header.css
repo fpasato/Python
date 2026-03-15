@@ -2,45 +2,170 @@ body {
     margin: 0;
 }
 
+@property --raio-luz {
+  syntax: '<length>';
+  initial-value: 300px;
+  inherits: false;
+}
+
+@property --opacidade-luz {
+  syntax: '<number>';
+  initial-value: 0.8;
+  inherits: false;
+}
+
 .header {
     position: relative;
     width: 100%;
-    height: 100px; /* aumentei para caber a wave */
-    background: #e3dfe8;
-
+    height: 80px; /* Bem mais slim */
+    background: #0A0A0A;
     display: flex;
-    justify-content: center;
+    justify-content: space-between; /* Logo de um lado, nav do outro */
+    align-items: center;
+    padding: 0 2%;
+    box-sizing: border-box;
+    overflow: hidden;
+    transition: 0.8s;
+}
+
+/* Detalhe de linha de luz no topo */
+.header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #627FA9, transparent);
+    opacity: 0.5;
+}
+
+
+.header-logo {
+    z-index: 10;
+    display: flex;
     align-items: center;
 }
 
-/* LOGO */
-.header-logo {
-    position: relative;
-    z-index: 2;
-    transition: transform 0.3s ease;
-}
 
 .header-logo img {
-    height: 150px;
+    height: 130px; 
+    filter: brightness(0); /* Deixa a logo totalmente preta */
+    opacity: 0.9; /* Opcional: um toque de transparência se quiser */
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.header-logo img:hover {
+/* LOGO FICA COLORIDA NO HOVER */
+.header-logo:hover img {
+    filter: brightness(1) grayscale(0) drop-shadow(0 4px 8px #767FDF);
     transform: scale(1.05);
-    cursor: pointer;
-    filter: brightness(1.1) drop-shadow(0 0 10px #0625ee);
 }
 
-.wave {
+.nav-minimal {
+    display: flex;
+    gap: 30px;
+    z-index: 10;
+}
+
+.nav-link {
+    text-decoration: none;
+    color: #fff;
+    font-size: 13px;
+    font-family: sans-serif;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    position: relative;
+    transition: 0.3s;
+}
+
+.nav-link:hover {
+    color: #94BD7F;
+}
+
+.nav-link::after {
+    content: '';
     position: absolute;
-    bottom: 0;
+    bottom: -5px;
     left: 0;
-    width: 100%;
-    overflow: hidden;
-    line-height: 0;
+    width: 0;
+    height: 2px;
+    background: #94BD7F;
+    transition: width 0.8s ease;
 }
 
-.wave svg {
+.nav-link:hover::after {
     width: 100%;
-    height: 100px;
+}
+
+
+.header {
+    position: relative;
+    width: 100%;
+    height: 80px;
+    background: #0A0A0A;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 2%; /* Logo mais à esquerda */
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+.header::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%; /* Cobre o header todo para o raio expandir livremente */
+    height: 100%;
+    
+    /* Usamos as variáveis aqui */
+    background: radial-gradient(
+        circle at 0% 0%, 
+        rgba(255, 255, 255, 1) 0px, 
+        rgba(255, 255, 255, 0.6) calc(var(--raio-luz) / 3), 
+        transparent var(--raio-luz)
+    );
+    
+    z-index: 5;
+    pointer-events: none;
+    mix-blend-mode: screen;
+    
+    /* Transição suave de todas as propriedades */
+    transition: --raio-luz 1.5s cubic-bezier(0.4, 0, 0.2, 1), 
+                --opacidade-luz 1.5s cubic-bezier(0.4, 0, 0.2, 1),
+                opacity 1.5s ease;
+    
+    opacity: var(--opacidade-luz);
+}
+
+.header:hover::after {
+    --raio-luz: 800px;
+    --opacidade-luz: 1;
+}
+
+.wave-container {
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    width: 200%;
+    display: flex;
+    line-height: 0;
+    opacity: 0.5;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.wave-container svg {
+    width: 50%; 
+    height: 40px;
+    margin: 0;
+    padding: 0;
     display: block;
+    animation: moveWave 15s linear infinite;
+}
+
+@keyframes moveWave {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
 }

@@ -1,0 +1,83 @@
+{% extends 'layouts/base_home.html' %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='transfer/style.css') }}">
+
+<main class="container">
+    <h1>Transferência</h1>
+
+    <div class="transfer-container">
+        <div class="box-origin-info">
+            <div class="box-money-info">
+                <h3>Saldo disponível</h3>
+                <h3>R$ {{ "%.2f" | format(contausuario['saldo']) }}</h3>
+
+                <form action="" method="POST" class="form-search">
+                    <label for="conta-destino">BUSCAR DESTINATÁRIO</label>
+                    <input type="text" id="conta-destino" name="conta-destino" placeholder="Digite o número da conta" required>
+                    <button type="submit">Verificar Conta</button>
+                </form>
+            </div>
+
+            <div class="box-account-info">
+                <h3>Sua Conta</h3>
+                <div class="info-row">
+                    <p>Titular <span>{{ contausuario['nome_completo'] }}</span></p>
+                </div>
+                <div class="info-grid">
+                    <p>Agência <span>0010</span></p>
+                    <p>Conta <span>{{ contausuario['numero_conta'] }}</span></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="box-destiny-info">
+            {% if conta_destino_info %}
+            
+            <form action="/rota_de_transferir" method="POST" class="transfer-form-final">
+                
+                <input type="hidden" name="conta-destino-final" value="{{ conta_destino_info['numero_conta'] }}">
+
+                <section id="conta-encontrada" class="box-account-info highlight-box">
+                    <div class="header-destiny">
+                        <h3>Destinatário</h3>
+                        <div class="status-badge">Ativa</div>
+                    </div>
+                    
+                    <div class="info-row">
+                        <p>Nome Completo <span>{{ conta_destino_info['nome'] }}</span></p>
+                    </div>
+                    
+                    <div class="info-grid">
+                        <p>Instituição <span>Lumo Digital</span></p>
+                        <p>Agência <span>{{ conta_destino_info['agencia'] or '0010' }}</span></p>
+                    </div>
+
+                    <div class="info-row">
+                        <p>Número da Conta <span>{{ conta_destino_info['numero_conta'] }}</span></p>
+                    </div>
+                </section>
+
+                <div class="box-value-info">
+                    <label for="valor">Valor da Transferência</label>
+                    <div class="input-value-wrapper">
+                        <span>R$</span>
+                        <input type="number" id="valor" name="valor" placeholder="0,00" step="0.01" min="0.01" required>
+                    </div>
+                    <button type="submit" class="btn-transfer">Confirmar Transferência</button>
+                </div>
+            </form>
+
+            {% else %}
+            <div class="box-account-info box-empty">
+                <span class="empty-icon">🔍</span>
+                <p>Aguardando dados do destinatário...</p>
+                <small>Busque por um número de conta ao lado</small>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</main>
+
+{% include "components/popup.html" %}
+{% endblock %}

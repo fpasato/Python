@@ -1,0 +1,254 @@
+:root {
+    --primary-color: #2187db;
+    --primary-hover: #1b6fb8;
+    --bg-light: #f8f9fa;
+    --text-main: #333;
+    --text-muted: #6c757d;
+    --border-color: #d1d5db;
+    --success: #2e7d32;
+    --success-hover: #246026;
+}
+
+.container {
+    width: 100%;
+    margin: 0 auto;
+    padding: 2rem;
+    font-family: 'Inter', 'Segoe UI', sans-serif;
+    background-color: #e5dbe5;
+
+    display: grid;
+    place-items: center;
+}
+
+h1 {
+    color: var(--text-main);
+    margin-bottom: 2rem;
+    font-weight: 700;
+}
+
+.transfer-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    background-color: #fff;
+    padding: 2.5rem;
+    border-radius: 1.5rem;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    max-width: 1000px;  
+}
+
+/* Colunas */
+.box-origin-info, .box-destiny-info {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+/* Saldo */
+.box-money-info {
+    background: linear-gradient(135deg, #fdfdfd 0%, #f4f6f8 100%);
+    border: 1px solid var(--border-color);
+    border-radius: 1rem;
+    padding: 1.5rem;
+}
+
+.box-money-info h3:first-child {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 0.5rem;
+}
+
+.box-money-info h3:last-of-type {
+    font-size: 2rem;
+    color: var(--text-main);
+    margin-bottom: 1.5rem;
+}
+
+/* Cartões Base */
+.box-account-info {
+    background-color: #fff;
+    border: 1px solid var(--border-color);
+    border-radius: 1rem;
+    padding: 1.5rem;
+}
+
+.box-account-info h3 {
+    font-size: 1.1rem;
+    margin-bottom: 1.2rem;
+    color: var(--primary-color);
+}
+
+.header-destiny {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.2rem;
+}
+
+.header-destiny h3 {
+    margin-bottom: 0;
+}
+
+/* Linhas de Informação */
+.info-row, .info-grid {
+    margin-bottom: 1rem;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.info-row p, .info-grid p {
+    display: flex;
+    flex-direction: column;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.info-row span, .info-grid span {
+    font-size: 1rem;
+    color: var(--text-main);
+    font-weight: 600;
+    margin-top: 0.3rem;
+}
+
+/* Estado Vazio (Sem Destinatário) */
+.box-empty {
+    border: 2px dashed var(--border-color);
+    background-color: var(--bg-light);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    height: 100%;
+    color: var(--text-muted);
+    min-height: 300px;
+}
+
+.box-empty .empty-icon {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+.box-empty p {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.box-empty small {
+    font-size: 0.85rem;
+}
+
+/* Formulários & Inputs */
+.form-search label, .box-value-info label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-main);
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+input {
+    width: 100%;
+    padding: 0.8rem 1rem;
+    border: 1.5px solid var(--border-color);
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    transition: border-color 0.2s;
+    box-sizing: border-box;
+    font-family: inherit;
+}
+
+input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+/* Bloco de Valor da Transferência */
+.transfer-form-final {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.box-value-info {
+    background-color: #fff;
+    border: 1px solid var(--border-color);
+    border-radius: 1rem;
+    padding: 1.5rem;
+}
+
+.input-value-wrapper {
+    display: flex;
+    align-items: center;
+    position: relative;
+    margin-bottom: 1rem;
+}
+
+.input-value-wrapper span {
+    position: absolute;
+    left: 1rem;
+    color: var(--text-muted);
+    font-weight: 600;
+}
+
+.input-value-wrapper input {
+    padding-left: 2.5rem;
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+/* Botões */
+button {
+    width: 100%;
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 0.9rem;
+    margin-top: 1rem;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.1s;
+}
+
+button:hover {
+   filter: brightness(0.9);
+}
+
+button:active {
+    transform: scale(0.95);
+}
+
+.btn-transfer {
+    background-color: var(--success);
+}
+
+.btn-transfer:hover {
+    background-color: var(--success-hover);
+}
+
+/* Badge de Status */
+.status-badge {
+    display: inline-block;
+    background-color: #e8f5e9;
+    color: var(--success);
+    padding: 0.3rem 0.8rem;
+    border-radius: 2rem;
+    font-size: 0.8rem;
+    font-weight: 700;
+}
+
+/* Responsividade */
+@media (max-width: 800px) {
+    .transfer-container {
+        grid-template-columns: 1fr;
+    }
+}

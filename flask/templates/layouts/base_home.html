@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='home/base_home.css') }}?v={{ config.DEBUG }}">
+    <title>{% block title %}Meu Site{% endblock %}</title>
+</head>
+
+<body>
+
+{% include "components/header.html" %}
+
+<hr>
+
+{% block content %}
+{% endblock %}
+
+<hr>
+
+
+{% include "components/footer.html" %}
+</body>
+</html>

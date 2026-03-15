@@ -1,39 +1,81 @@
-{% extends "layouts/base.html" %}
+{% extends "layouts/base_home.html" %}
 
 {% block content %}
-
 <link rel="stylesheet" href="{{ url_for('static', filename='home/style.css') }}">
 
-<main class="home-main">
+<main class="main-container">
     <div class="container">
-        <section class="section-login">
-            <h1 class="login-title">Acesse sua conta</h1>
-            <form action="/login" method="POST" class="form-login">
-                <div class="input-group">
-                    <label for="email">
-                        <img src="{{ url_for('static', filename='icons/avatar.png') }}" alt="Ícone de usuário">
-                    </label>
-                    <input type="email" id="email" name="email" placeholder="Email" required>
-                </div>
-                
-                <div class="input-group">
-                    <label for="password">
-                        <img src="{{ url_for('static', filename='icons/old-big-key.png') }}" alt="Ícone de senha">
-                    </label>
-                    <input type="password" id="password" name="password" placeholder="Senha" required maxlength="8" inputmode="numeric" pattern="[0-9]{8}" title="Digite exatamente 8 números">
-                   
-                </div>
-                
-                <button type="submit" class="btn-login">Login</button>
-                <a href="/register" class="link-register">Cadastre-se</a>
-            </form>
-        </section>
+        <h1>Bem-vindo à sua conta bancária! {{ session['user_name'] }}</h1>
 
-        <article class="container-title">
-            <h2>Confiança para hoje. Prosperidade para o futuro.</h2>
-            <p class="tagline">Entre para começar sua jornada</p>
-        </article>
+        <div class="content">
+            <div class="actions">
+                <div class="principal-options">
+                    <h2>Ações rápidas</h2>
+                    <a href="/transfer">Transferir</a>
+                    <a href="#">PIX</a>
+                    <a href="#">Pagar boleto</a>
+                    <a href="#">Ver saldo</a>
+                    <a href="#">Extrato</a>
+                    <a href="#">Cartões</a>
+                </div>
+                <div class="other-options">
+                    <h3>Outras opções</h3>
+                    <a href="#">Investimentos</a>
+                    <a href="#">Empréstimos</a>
+                    <a href="#">Guardar dinheiro</a>
+                    <a href="#">Metas financeiras</a>
+                    <a href="#">Dados da conta</a>
+                    <a href="#">Segurança</a>
+                    <a href="#">Limites</a>
+                    <a href="/logout">Sair</a>
+                </div>
+            </div>
+
+            <div class="promo">
+                <div class="carousel-wrapper">
+                    <button class="nav-btn left" onclick="sideScroll('left')">❮</button>
+                    <div class="ads-grid" id="adsGrid">
+                        <img src="{{ url_for('static', filename='images/ad/ad1.jpg') }}" alt="Cartão">
+                        <img src="{{ url_for('static', filename='images/ad/ad2.png') }}" alt="Empréstimo">
+                        <!-- Vídeo com controles para ativar som manualmente (autoplay com muted é necessário para funcionar automaticamente) -->
+                        <video src="{{ url_for('static', filename='videos/ad6.mp4') }}" autoplay loop muted controls></video>
+                        <img src="{{ url_for('static', filename='images/ad/ad4.png') }}" alt="Seguros">
+                        <img src="{{ url_for('static', filename='images/ad/ad5.png') }}" alt="Cartão 2">
+                    </div>
+                    <button class="nav-btn right" onclick="sideScroll('right')">❯</button>
+                </div>
+            </div>
+        </div>
     </div>
 </main>
+
+<script>
+    function sideScroll(direction) {
+        const container = document.getElementById('adsGrid');
+        if (!container) return;
+        const scrollAmount = direction === 'left' ? -container.clientWidth : container.clientWidth;
+        container.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+    }
+
+    // Auto-play: passa automaticamente a cada 5 segundos
+    let autoScroll = setInterval(() => sideScroll('right'), 5000);
+
+    const wrapper = document.querySelector('.carousel-wrapper');
+    if (wrapper) {
+        wrapper.addEventListener('mouseenter', () => {
+            clearInterval(autoScroll);
+        });
+        wrapper.addEventListener('mouseleave', () => {
+            autoScroll = setInterval(() => sideScroll('right'), 5000);
+        });
+    }
+    const video = document.querySelector('.ads-grid video');
+    if (video) {
+        video.addEventListener('click', function() {
+            this.muted = false;
+            this.play();
+        });
+    }
+</script>
 
 {% endblock %}
