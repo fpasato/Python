@@ -1,0 +1,175 @@
+/* Reset básico para garantir que a fonte fique agradável */
+
+body {
+  font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background-color: #e5dbe5; /* Fundo cinza bem claro */
+  color: #333;
+  margin: 0;
+}
+
+/* O container principal */
+
+.container {
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+  min-height: 100vh;
+
+  padding: 2rem 1rem;
+
+  box-sizing: border-box;
+}
+
+.header {
+  width: 100%;
+
+  max-width: none;
+
+  margin-bottom: 2rem;
+}
+
+h1 {
+  color: #2c3e50;
+
+  margin-bottom: 1.5rem;
+
+  font-weight: 700;
+}
+
+/* O Cartão de Saldo */
+
+.saldo-container {
+  background: #ffffff;
+
+  border-radius: 12px;
+
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08); /* Sombra suave */
+
+  padding: 2rem 2.5rem;
+
+  width: 100%;
+
+  max-width: 400px; /* Evita que fique muito esticado no PC */
+
+  margin-bottom: 2rem;
+
+  border-top: 5px solid #27ae60; /* Detalhe verde no topo (remete a dinheiro) */
+}
+
+/* Destaque para o Saldo Atual */
+
+.saldo-container h3 {
+  font-size: 1rem;
+
+  color: #7f8c8d;
+
+  margin-top: 0;
+
+  margin-bottom: 1.5rem;
+
+  border-bottom: 1px solid #ecf0f1;
+
+  padding-bottom: 1rem;
+
+  text-transform: uppercase;
+
+  letter-spacing: 0.5px;
+}
+
+.saldo-container h3 span {
+  display: block;
+
+  font-size: 2.8rem;
+
+  color: #2c3e50;
+
+  font-weight: 800;
+
+  margin-top: 0.5rem;
+
+  letter-spacing: -1px;
+}
+
+/* Lista de informações da conta */
+
+.saldo-container h4 {
+  font-size: 0.95rem;
+
+  color: #555;
+
+  margin: 0.8rem 0;
+
+  display: flex;
+
+  justify-content: space-between; /* Separa o rótulo do valor (ex: Titular ----- Fernando) */
+
+  font-weight: 400;
+}
+
+.saldo-container h4 span {
+  font-weight: 600;
+
+  color: #2c3e50;
+
+  text-align: right;
+}
+
+/* Container flex para os botões ficarem lado a lado (opcional) ou em coluna */
+
+/* Estilo geral dos botões */
+
+button {
+  width: 100%;
+
+  max-width: 400px;
+
+  padding: 1rem;
+
+  font-size: 1rem;
+
+  font-weight: 600;
+
+  border: none;
+
+  border-radius: 8px;
+
+  cursor: pointer;
+
+  margin-bottom: 1rem;
+
+  transition: all 0.2s ease;
+}
+
+button:active {
+  transform: scale(0.98); /* Efeito de "clique" ao pressionar */
+}
+
+/* Botão Primário (Atualizar) */
+
+#btn-refresh {
+  background-color: #27ae60;
+
+  color: white;
+
+  box-shadow: 0 4px 12px rgba(39, 174, 96, 0.3);
+}
+
+#btn-refresh:hover {
+  background-color: #219653;
+
+  box-shadow: 0 6px 16px rgba(39, 174, 96, 0.4);
+}
+
+/* Botão Secundário (Simular pagamento) */
+
+button:not(#btn-refresh) {
+  background-color: #ecf0f1;
+
+  color: #2c3e50;
+}
+
+button:not(#btn-refresh):hover {
+  background-color: #bdc3c7;
+}

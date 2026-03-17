@@ -2,7 +2,7 @@
 
 {% block content %}
 
-<link rel="stylesheet" href="{{ url_for('static', filename='register/style.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/register/style.css') }}">
 
 <main class="home-main">
     <div class="bg-overlay"></div>
@@ -44,6 +44,20 @@
                     >
                 </div>
 
+                <div class="input-group">
+                    <label for="email">
+                        <img src="{{ url_for('static', filename='icons/e-mail.png') }}" alt="Ícone de email">
+                    </label>
+
+                    <input 
+                        type="text" 
+                        id="email" 
+                        name="email" 
+                        placeholder="Email" 
+                        required
+                    >
+                </div>
+                
                 <div class="input-group">
                     <label for="password">
                         <img src="{{ url_for('static', filename='icons/old-big-key.png') }}" alt="Ícone de senha">
@@ -118,8 +132,27 @@ document
         });
 
     });
+
+// Manter estado focado mesmo após perder o foco
+const sectionLogin = document.querySelector('.section-login');
+const inputs = document.querySelectorAll('.form-login input');
+
+inputs.forEach(input => {
+    input.addEventListener('focus', () => {
+        sectionLogin.classList.add('focused');
+    });
+    
+    input.addEventListener('blur', () => {
+        // Verifica se algum outro input ainda tem foco
+        const hasFocus = Array.from(inputs).some(inp => inp === document.activeElement);
+        if (!hasFocus) {
+            sectionLogin.classList.remove('focused');
+        }
+    });
+});
 </script>
 
 <script src="{{ url_for('static', filename='js/maskcpf.js') }}"></script>
-{% endblock %}
+
 {% include "components/popup.html" %}
+{% endblock %}

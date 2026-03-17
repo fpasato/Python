@@ -97,6 +97,27 @@ body {
     width: 100%;
 }
 
+#logout-link {
+    color: #ff4444;
+}
+#logout-link:hover {
+    color: #ff6666;
+}
+#logout-link::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: #ff4444;
+    transition: width 0.8s ease;
+}
+
+#logout-link:hover::after {
+    width: 100%;
+}
+
 
 .header {
     position: relative;

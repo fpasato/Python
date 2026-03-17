@@ -1,5 +1,5 @@
 from flask import Blueprint, request, render_template
-from utils.services.register import register_account
+from utils.services.register.functions import register_account
 
 register_bp = Blueprint("register", __name__, url_prefix="/register")
 

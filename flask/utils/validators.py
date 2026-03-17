@@ -1,24 +1,23 @@
 
 import os
 import sqlite3
+from flask import session
 
-# Caminho absoluto do banco, garante que sempre vai abrir o correto
 DB_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), "database.db")
 
-def get_db():
+def get_db():     # abre conexão com o banco
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     return conn
     
 
 def account_already_exists(numero_conta):
+    
     conn = get_db()
     cursor = conn.cursor()
-    
     with conn:
         cursor.execute("SELECT 1 FROM contas WHERE numero_conta=? LIMIT 1", (numero_conta,))
-        resultado = cursor.fetchone()
-    
+        resultado = cursor.fetchone() 
     return resultado is not None
 
 def cpf_exists(cpf):
@@ -26,7 +25,7 @@ def cpf_exists(cpf):
     cursor = conn.cursor()
     
     with conn:
-        cursor.execute("SELECT 1 FROM contas WHERE cpf=? LIMIT 1", (cpf,))
+        cursor.execute("SELECT 1 FROM usuarios WHERE cpf=? LIMIT 1", (cpf,))
         resultado = cursor.fetchone()
     
     return resultado is not None
@@ -57,28 +56,30 @@ def verifica_cpf(cpf):
         return True
     else:
         return False
-    
-
-
-
-
-
 
 def get_account_by_number(numero_conta):
     conn = get_db()
     cursor = conn.cursor()
     
     with conn:
-        cursor.execute("SELECT * FROM contas WHERE numero_conta=?", (numero_conta,))
+        cursor.execute("""
+            SELECT c.id, u.nome_completo, u.cpf, c.saldo, c.numero_conta 
+            FROM contas c 
+            JOIN usuarios u ON c.usuario_id = u.id 
+            WHERE c.numero_conta = ?
+        """, (numero_conta,))
         resultado = cursor.fetchone()
     
     if resultado is None:
         return False
     
-    # Se encontrou, retorna os dados da conta
+
     conta = {
+        'id': resultado[0], 
         'nome_completo': resultado[1],
-        'numero_conta': resultado[6]
+        'cpf': resultado[2],
+        'saldo': resultado[3], 
+        'numero_conta': resultado[4]
     }
     
     return conta 
@@ -89,7 +90,12 @@ def get_account_by_id(id):
     cursor = conn.cursor()
     
     with conn:
-        cursor.execute("SELECT * FROM contas WHERE id=?", (id,))
+        cursor.execute("""
+            SELECT c.id, u.nome_completo, u.cpf, c.saldo, c.numero_conta 
+            FROM contas c 
+            JOIN usuarios u ON c.usuario_id = u.id 
+            WHERE c.id = ?
+        """, (id,))
         resultado = cursor.fetchone()
     
     if resultado is None:
@@ -100,8 +106,24 @@ def get_account_by_id(id):
         'id': resultado[0], 
         'nome_completo': resultado[1],
         'cpf': resultado[2],
-        'saldo': resultado[4],
-        'numero_conta': resultado[6]
+        'saldo': resultado[3], 
+        'numero_conta': resultado[4]
     }
     
     return conta 
+
+
+
+def email_exists(email):
+    conn = get_db()
+    cursor = conn.cursor()
+    
+    with conn:
+        cursor.execute("SELECT 1 FROM usuarios WHERE email=? LIMIT 1", (email,))
+        resultado = cursor.fetchone()
+    
+    return resultado is not None
+
+
+def check_session():
+    return 'user_info' in session

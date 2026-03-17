@@ -11,10 +11,9 @@
 
 
 body{
-    background-image: url('../static/images/bg.jpeg');
+    background-image: url('../images/bg.jpeg');
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
 
 }
-

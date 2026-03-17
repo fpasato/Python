@@ -2,7 +2,7 @@
 
 {% block content %}
 
-<link rel="stylesheet" href="{{ url_for('static', filename='login/style.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/login/style.css') }}">
 
 <main class="home-main">
     <div class="container">
@@ -10,10 +10,10 @@
             <h1 class="login-title">Acesse sua conta</h1>
             <form action="/login" method="POST" class="form-login">
                 <div class="input-group">
-                    <label for="CPF">
-                        <img src="{{ url_for('static', filename='icons/avatar.png') }}" alt="Ícone de usuário">
+                    <label for="email">
+                        <img src="{{ url_for('static', filename='icons/e-mail.png') }}" alt="Ícone de email">
                     </label>
-                    <input type="text" id="cpf" name="cpf" placeholder="CPF" required maxlength="14">
+                    <input type="email" id="email" name="email" placeholder="Email" required>
                 </div>
 
                 <div class="input-group">

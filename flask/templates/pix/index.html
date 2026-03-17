@@ -1,0 +1,106 @@
+{% extends 'layouts/base_home.html' %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/pix/style.css') }}">
+
+<main class="pix-container">
+    <h1>PIX - Lumo Digital</h1>
+
+    <!-- Abas / Seções -->
+    <div class="pix-tabs">
+        <button class="tab-button active" data-tab="gerenciar">Gerenciar Chaves PIX</button>
+        <button class="tab-button" data-tab="enviar">Enviar PIX</button>
+    </div>
+
+    <!-- ---------- Gerenciar Chaves ---------- -->
+    <section id="gerenciar" class="pix-section active">
+        <h2>Minhas Chaves PIX</h2>
+        <form id="criar-chave-form" class="form-inline">
+            <div class="form-group">
+                <label for="tipo-chave">Tipo de Chave:</label>
+                <select id="tipo-chave" name="tipo-chave" required>
+                    <option value="cpf">CPF</option>
+                    <option value="email">E-mail</option>
+                    <option value="telefone">Telefone</option>
+                    <option value="aleatoria">Chave Aleatória</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="valor-chave">Valor / Dados da Chave:</label>
+                <input type="text" id="valor-chave" name="valor-chave" placeholder="Digite os dados" required>
+            </div>
+
+            <button type="button" id="btn-criar-chave">Criar Chave</button>
+        </form>
+
+        <div class="chaves-lista">
+            <h3>Chaves Registradas</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Tipo</th>
+                        <th>Chave</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody id="lista-chaves">
+                    <!-- Lista populada via JS -->
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- ---------- Enviar PIX ---------- -->
+    <section id="enviar" class="pix-section">
+        <h2>Enviar PIX</h2>
+        <form id="enviar-pix-form">
+            <div class="form-group full-width">
+                <label for="chave-destino">Chave de Destino:</label>
+                <input type="text" id="chave-destino" name="chave-destino" placeholder="Digite a chave ou selecione" required>
+            </div>
+
+            <div class="form-group">
+                <label for="valor-pix">Valor (R$):</label>
+                <input type="number" id="valor-pix" name="valor-pix" min="1" step="0.01" required>
+            </div>
+
+            <div class="form-group">
+                <label for="descricao">Descrição (opcional):</label>
+                <input type="text" id="descricao" name="descricao" placeholder="Ex: Pagamento de serviço">
+            </div>
+
+            <button type="button" id="btn-enviar">Enviar PIX</button>
+        </form>
+
+        <section class="resumo" id="resumo-pix" style="display:none;">
+            <h3>Resumo da Transferência</h3>
+            <p>Chave de destino: <span id="res-chave"></span></p>
+            <p>Valor: <span id="res-valor"></span></p>
+            <p>Descrição: <span id="res-desc"></span></p>
+        </section>
+
+        <div class="historico">
+            <h3>Histórico de PIX</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Data</th>
+                        <th>Chave de Destino</th>
+                        <th>Valor</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="historico-pix">
+                    <!-- Populado via JS -->
+                </tbody>
+            </table>
+        </div>
+    </section>
+</main>
+
+<script src="{{ url_for('static', filename='js/pix.js') }}"></script>
+{% include "components/popup.html" %}
+{% endblock %}

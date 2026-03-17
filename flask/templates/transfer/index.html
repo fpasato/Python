@@ -1,32 +1,33 @@
 {% extends 'layouts/base_home.html' %}
 
 {% block content %}
-<link rel="stylesheet" href="{{ url_for('static', filename='transfer/style.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/transfer/style.css') }}">
 
 <main class="container">
-    <h1>Transferência</h1>
-
+    <div class="header-transfer">
+        <h1>Transferência</h1>
+    </div>
     <div class="transfer-container">
         <div class="box-origin-info">
             <div class="box-money-info">
                 <h3>Saldo disponível</h3>
-                <h3>R$ {{ "%.2f" | format(contausuario['saldo']) }}</h3>
-
+                <h3>R$ {{ "{:,.2f}".format(conta_usuario['saldo']) }}</h3>
                 <form action="" method="POST" class="form-search">
                     <label for="conta-destino">BUSCAR DESTINATÁRIO</label>
                     <input type="text" id="conta-destino" name="conta-destino" placeholder="Digite o número da conta" required>
-                    <button type="submit">Verificar Conta</button>
+                    <input type="hidden" name="acao" value="buscar">
+                    <button type="submit" class="btn">Verificar Conta</button>
                 </form>
             </div>
 
             <div class="box-account-info">
                 <h3>Sua Conta</h3>
                 <div class="info-row">
-                    <p>Titular <span>{{ contausuario['nome_completo'] }}</span></p>
+                    <p>Titular <span>{{ conta_usuario['nome_completo'] }}</span></p>
                 </div>
                 <div class="info-grid">
                     <p>Agência <span>0010</span></p>
-                    <p>Conta <span>{{ contausuario['numero_conta'] }}</span></p>
+                    <p>Conta <span>{{ conta_usuario['numero_conta'] }}</span></p>
                 </div>
             </div>
         </div>
@@ -34,7 +35,7 @@
         <div class="box-destiny-info">
             {% if conta_destino_info %}
             
-            <form action="/rota_de_transferir" method="POST" class="transfer-form-final">
+            <form action="/transfer/transferir" method="POST" class="transfer-form-final">
                 
                 <input type="hidden" name="conta-destino-final" value="{{ conta_destino_info['numero_conta'] }}">
 
@@ -64,7 +65,7 @@
                         <span>R$</span>
                         <input type="number" id="valor" name="valor" placeholder="0,00" step="0.01" min="0.01" required>
                     </div>
-                    <button type="submit" class="btn-transfer">Confirmar Transferência</button>
+                    <button  type="submit" class="btn" id="btn-transferir">Confirmar Transferência</button>
                 </div>
             </form>
 

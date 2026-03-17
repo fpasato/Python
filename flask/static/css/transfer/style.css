@@ -11,25 +11,30 @@
 
 .container {
     width: 100%;
-    margin: 0 auto;
-    padding: 2rem;
+    min-height: 100vh;
     font-family: 'Inter', 'Segoe UI', sans-serif;
     background-color: #e5dbe5;
-
-    display: grid;
-    place-items: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 2rem;
 }
 
-h1 {
+.header-transfer {
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+    margin-bottom: 1.8rem;
+}
+.header-transfer h1 {
     color: var(--text-main);
-    margin-bottom: 2rem;
     font-weight: 700;
+    
 }
 
 .transfer-container {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 2rem;
     background-color: #fff;
     padding: 2.5rem;
     border-radius: 1.5rem;
@@ -71,7 +76,8 @@ h1 {
     background-color: #fff;
     border: 1px solid var(--border-color);
     border-radius: 1rem;
-    padding: 1.5rem;
+    padding: 1.5rem 1.5rem 2rem 1.5rem;
+    
 }
 
 .box-account-info h3 {
@@ -181,7 +187,7 @@ input:focus {
     background-color: #fff;
     border: 1px solid var(--border-color);
     border-radius: 1rem;
-    padding: 1.5rem;
+    padding: 1.8rem;
 }
 
 .input-value-wrapper {
@@ -205,7 +211,7 @@ input:focus {
 }
 
 /* Botões */
-button {
+.btn {
     width: 100%;
     background-color: var(--primary-color);
     color: white;
@@ -219,11 +225,11 @@ button {
     transition: background-color 0.2s, transform 0.1s;
 }
 
-button:hover {
+.btn:hover {
    filter: brightness(0.9);
 }
 
-button:active {
+.btn:active {
     transform: scale(0.95);
 }
 

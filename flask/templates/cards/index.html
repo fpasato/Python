@@ -1,0 +1,136 @@
+{% extends 'layouts/base_home.html' %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/cards/style.css') }}">
+
+<main class="cards-container">
+    <header class="cards-header">
+        <div>
+            <h1>Meus Cartões</h1>
+            <p>Gerencie seus limites e cartões físicos e virtuais.</p>
+        </div>
+        <div class="filter-group">
+            <button class="btn-filter active">Todos</button>
+            <button class="btn-filter">Crédito</button>
+            <button class="btn-filter">Débito</button>
+        </div>
+    </header>
+
+    <section class="cards-display">
+        <article class="bank-card credit-card">
+            <div class="card-glass"></div>
+            <div class="card-content">
+                <div class="card-top">
+                    <span class="card-type">Crédito Gold</span>
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" alt="Mastercard" width="40">
+                </div>
+                <div class="card-number">•••• •••• •••• 5542</div>
+                <div class="card-bottom">
+                    <div class="card-holder">
+                        <label>Titular</label>
+                        <span>JOÃO R. LUMO</span>
+                    </div>
+                    <div class="card-expiry">
+                        <label>Validade</label>
+                        <span>08/29</span>
+                    </div>
+                </div>
+            </div>
+        </article>
+
+        <article class="bank-card virtual-card">
+            <div class="card-glass"></div>
+            <div class="card-content">
+                <div class="card-top">
+                    <span class="card-type">Virtual</span>
+                    <i class="fas fa-bolt"></i>
+                </div>
+                <div class="card-number">•••• •••• •••• 9012</div>
+                <div class="card-info-row">
+                    <span>CVV: <strong>***</strong></span>
+                    <button class="btn-show-data">Ver dados</button>
+                </div>
+            </div>
+        </article>
+    </section>
+
+    <section class="cards-grid">
+        <div class="grid-col-left">
+            <div class="panel actions-panel">
+                <h3>Gerenciar Cartão</h3>
+                <div class="action-buttons">
+                    <button class="action-item"><i class="fas fa-lock"></i> Bloquear</button>
+                    <button class="action-item"><i class="fas fa-redo"></i> 2ª Via</button>
+                    <button class="action-item"><i class="fas fa-sliders-h"></i> Ajustar Limite</button>
+                    <button class="action-item primary"><i class="fas fa-plus"></i> Novo Virtual</button>
+                </div>
+
+                <hr>
+
+                <h3>Segurança</h3>
+                <div class="security-toggles">
+                    <div class="toggle-item">
+                        <span>Compras Online</span>
+                        <input type="checkbox" checked>
+                    </div>
+                    <div class="toggle-item">
+                        <span>Uso Internacional</span>
+                        <input type="checkbox">
+                    </div>
+                    <div class="toggle-item">
+                        <span>Notificações Push</span>
+                        <input type="checkbox" checked>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid-col-right">
+            <div class="panel invoice-panel">
+                <div class="invoice-header">
+                    <h3>Fatura Atual</h3>
+                    <span class="invoice-date">Vence em 15 Out</span>
+                </div>
+                <div class="invoice-amount">R$ 2.450,80</div>
+                <div class="limit-bar">
+                    <div class="limit-used" style="width: 65%;"></div>
+                </div>
+                <p class="limit-info">Limite disponível: <strong>R$ 1.549,20</strong></p>
+                <button class="btn-pay">Pagar Fatura</button>
+            </div>
+
+            <div class="panel history-panel">
+                <h3>Transações Recentes</h3>
+                <ul class="transaction-list">
+                    <li>
+                        <div class="tx-icon"><i class="fas fa-shopping-bag"></i></div>
+                        <div class="tx-info">
+                            <span class="tx-name">Amazon.com</span>
+                            <span class="tx-date">Hoje, 14:20</span>
+                        </div>
+                        <span class="tx-value negative">- R$ 189,90</span>
+                    </li>
+                    <li>
+                        <div class="tx-icon"><i class="fas fa-utensils"></i></div>
+                        <div class="tx-info">
+                            <span class="tx-name">Restaurante Lumo</span>
+                            <span class="tx-date">Ontem, 20:15</span>
+                        </div>
+                        <span class="tx-value negative">- R$ 75,00</span>
+                    </li>
+                    <li>
+                        <div class="tx-icon success"><i class="fas fa-undo"></i></div>
+                        <div class="tx-info">
+                            <span class="tx-name">Estorno Netflix</span>
+                            <span class="tx-date">12 Out, 09:00</span>
+                        </div>
+                        <span class="tx-value positive">+ R$ 55,90</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </section>
+</main>
+
+{% include "components/popup.html" %}
+{% endblock %}
