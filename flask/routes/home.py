@@ -5,6 +5,7 @@ home_bp = Blueprint("home", __name__, url_prefix="/home")
 
 @home_bp.route("/")
 def home():
-    check_session() 
+    if not check_session():
+        return redirect("/login")
     
     return render_template("home/index.html", nome_usuario=session['user_info']['user_name'])

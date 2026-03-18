@@ -38,7 +38,7 @@ def register_account(form_data):
     Recebe form_data do Flask (request.form) e tenta criar a conta.
     Retorna dict: {"success": bool, "message": str, "numero_conta": str (opcional)}
     """
-    nome = form_data.get("name")
+    nome = form_data.get("name").capitalize()
     cpf = re.sub(r"\D", "", form_data.get("cpf"))
     senha = form_data.get("password")
     email = form_data.get("email")
@@ -75,9 +75,6 @@ def register_account(form_data):
     senha_hash = generate_password_hash(senha)
     usuario_id = create_user(nome, cpf, email, senha_hash)
     create_account(numero_conta, usuario_id)
-    
-    
-    
 
     return {"success": True, "message": "Conta criada! Faça seu login.", "numero_conta": numero_conta}
 

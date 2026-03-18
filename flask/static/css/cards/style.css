@@ -1,337 +1,270 @@
-/* static/cards/style.css - Versão Modernizada e Integrada */
-
-/* Importação da fonte (mesma da home) */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-
-/* Variáveis globais (unificadas com a home) */
+/* ==========================================================================
+   VARIÁVEIS - TEMA CLARO E MINIMALISTA
+   ========================================================================== */
 :root {
-  --bg-global: #f8fafc;
-  --bg-card: #ffffff;
-  --text-primary: #0f172a;
-  --text-secondary: #475569;
-  --primary: #7c3aed;
-  --primary-light: #ede9fe;
-  --danger: #ef4444;
-  --success: #10b981;
-  --border-color: #e2e8f0;
-  --radius-lg: clamp(1.25rem, 4vw, 2rem);
-  --radius-md: clamp(0.75rem, 2vw, 1rem);
-  --radius-sm: 0.75rem;
-  --shadow-sm: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05);
-  --shadow-md: 0 20px 25px -5px rgb(0 0 0 / 0.05), 0 8px 10px -6px rgb(0 0 0 / 0.05);
-  --shadow-lg: 0 25px 50px -12px rgb(0 0 0 / 0.25);
-  --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  --glass-bg: rgba(255, 255, 255, 0.1);
-  --glass-border: rgba(255, 255, 255, 0.2);
+  /* Cores Principais */
+  --bg-body: #ced4da;       /* Fundo geral bem claro */
+  --bg-panel: #FFFFFF;      /* Fundo dos painéis (branco puro) */
+  --accent: #6366F1;        /* Roxo/Indigo moderno para ações */
+  --accent-hover: #4F46E5;
+  
+  /* Textos */
+  --text-main: #111827;     /* Quase preto para alto contraste e leitura */
+  --text-muted: #1a1a1a;    /* Cinza para textos secundários */
+  
+  /* Bordas e Estrutura */
+  --border-light: #E5E7EB;
+  --radius-card: 20px;
+  --radius-panel: 16px;
+  --transition: all 0.3s ease;
 }
 
+/* ==========================================================================
+   RESET E ESTRUTURA GLOBAL
+   ========================================================================== */
 * {
+  box-sizing: border-box;
   margin: 0;
   padding: 0;
-  box-sizing: border-box;
 }
 
 body {
-  background-color: var(--bg-global);
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  color: var(--text-primary);
-  line-height: 1.5;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background-color: var(--bg-body);
+  color: var(--text-main);
   -webkit-font-smoothing: antialiased;
 }
 
-/* Container principal */
 .cards-container {
-  max-width: 1400px;
+  max-width: 1000px;
   margin: 0 auto;
-  padding: clamp(1.5rem, 5vw, 3rem);
-  width: 100%;
+  padding: 3rem 1.5rem;
+  min-height: 100vh;
 }
 
-/* Cabeçalho */
 .cards-header {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  align-items: center;
-  gap: 1.5rem;
   margin-bottom: 2.5rem;
 }
 
 .cards-header h1 {
-  font-size: clamp(2rem, 5vw, 2.5rem);
+  font-size: 2rem;
   font-weight: 700;
   letter-spacing: -0.02em;
-  color: var(--text-primary);
-  margin-bottom: 0.25rem;
+  margin-bottom: 0.5rem;
 }
 
 .cards-header p {
-  color: var(--text-secondary);
-  font-size: 1.1rem;
+  color: #000;
+  font-size: 1rem;
 }
 
-/* Filtros */
-.filter-group {
-  display: flex;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-}
-
-.btn-filter {
-  padding: 0.6rem 1.2rem;
-  border: 1px solid var(--border-color);
-  background: var(--bg-card);
-  border-radius: 2rem;
-  font-weight: 500;
-  color: var(--text-secondary);
-  cursor: pointer;
-  transition: var(--transition);
-  font-size: 0.95rem;
-}
-
-.btn-filter:hover {
-  background: var(--primary-light);
-  border-color: var(--primary);
-  color: var(--primary);
-}
-
-.btn-filter.active {
-  background: var(--primary);
-  border-color: var(--primary);
-  color: white;
-}
-
-/* Seção de cartões visuais */
+/* ==========================================================================
+   DISPLAY DE CARTÕES (FLEXBOX PARA MELHOR ALINHAMENTO)
+   ========================================================================== */
 .cards-display {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  display: flex;
+  flex-wrap: wrap;
   gap: 2rem;
-  margin-bottom: 3rem;
-}
-
-/* Cartão base */
-.bank-card {
-  height: 220px;
-  border-radius: var(--radius-lg);
-  position: relative;
-  color: white;
-  padding: 1.8rem;
-  overflow: hidden;
-  box-shadow: var(--shadow-md);
-  transition: var(--transition);
-  cursor: pointer;
-  backdrop-filter: blur(4px);
-}
-
-.bank-card:hover {
-  transform: translateY(-6px);
-  box-shadow: var(--shadow-lg);
-}
-
-/* Variações de cartão */
-.credit-card {
-  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-}
-
-.virtual-card {
-  background: linear-gradient(135deg, var(--primary) 0%, #8b5cf6 100%);
-  border: 1px solid var(--glass-border);
-}
-
-/* Efeito glass (camada superior) */
-.card-glass {
-  position: absolute;
-  top: 0;
-  left: 0;
+  margin-bottom: 4rem;
+  
+  justify-content: center;
   width: 100%;
-  height: 100%;
-  background: linear-gradient(135deg, var(--glass-bg) 0%, transparent 80%);
-  pointer-events: none;
 }
 
-/* Conteúdo do cartão */
-.card-content {
-  position: relative;
-  z-index: 2;
-  height: 100%;
+/* Estilo Base do Cartão */
+.bank-card {
+  width: 420px;
+  height: 250px;
+  border-radius: var(--radius-card);
+  padding: 1.5rem;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  border: none;
+  color: #FFFFFF;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+  transition: var(--transition);
+  text-decoration: none;
+  position: relative;
+  overflow: hidden;
 }
 
+.bank-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
+}
+
+/* Cores Específicas dos Cartões */
+.debit-card {
+  /* Gradiente escuro elegante para débito */
+  background: linear-gradient(135deg, #1F2937 0%, #111827 100%);
+}
+
+.credit-card {
+  /* Gradiente vibrante para crédito */
+  background: linear-gradient(135deg, #6366F1 0%, #4338CA 100%);
+}
+
+/* Reset de botão e formulário envolvendo cartões */
+.card-form { display: block; }
+.bank-card { text-align: left; font-family: inherit; }
+
+/* Elementos Internos do Cartão */
 .card-top {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-weight: 600;
-  font-size: 1.1rem;
 }
 
 .card-type {
-  text-transform: uppercase;
+  font-size: 0.75rem;
+  font-weight: 600;
   letter-spacing: 1px;
-  opacity: 0.9;
+  text-transform: uppercase;
+  opacity: 0.8;
+}
+
+.bank-logo {
+  height: 28px; /* Controla o tamanho da logo no cartão */
+  width: auto; /* Garante que ela não fique esticada */
+  cursor: pointer;
+  transition: transform 0.2s ease;
+  filter: brightness(0) invert(1); /* Deixa a logo toda branca. Remova isso se a sua logo já for branca ou se quiser manter as cores originais */
+}
+
+.bank-logo:hover {
+  transform: scale(1.1);
 }
 
 .card-number {
-  font-size: 1.5rem;
-  letter-spacing: 2px;
-  font-weight: 500;
-  margin: 1rem 0;
-  font-family: 'Courier New', monospace;
-  text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 1.35rem;
+  letter-spacing: 3px;
+  margin-top: auto;
+  margin-bottom: 1.5rem;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.2);
 }
 
 .card-bottom {
   display: flex;
-  gap: 2.5rem;
-  font-size: 0.85rem;
-}
-
-.card-bottom label {
-  display: block;
-  color: rgba(255,255,255,0.7);
-  margin-bottom: 0.2rem;
-  font-size: 0.7rem;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
-
-.card-bottom span {
-  font-weight: 600;
-  font-size: 1rem;
-}
-
-/* Para cartão virtual */
-.card-info-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 0.5rem;
-  font-size: 0.95rem;
-}
-
-.btn-show-data {
-  background: rgba(255,255,255,0.2);
-  border: 1px solid rgba(255,255,255,0.3);
-  color: white;
-  padding: 0.4rem 1rem;
-  border-radius: 2rem;
-  font-size: 0.8rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: var(--transition);
-  backdrop-filter: blur(4px);
-}
-
-.btn-show-data:hover {
-  background: rgba(255,255,255,0.3);
-  transform: scale(1.02);
-}
-
-/* Grid de informações */
-.cards-grid {
-  display: grid;
-  grid-template-columns: 1fr 1.5fr;
   gap: 2rem;
 }
 
-@media (max-width: 900px) {
-  .cards-grid {
-    grid-template-columns: 1fr;
-    gap: 1.5rem;
-  }
+.info-group label {
+  display: block;
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  opacity: 0.7;
+  margin-bottom: 0.2rem;
 }
 
-/* Painéis comuns */
+.info-group span {
+  font-size: 0.85rem;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
+
+/* Cartão Vazio / Adicionar */
+.empty-card-slot {
+  background: transparent;
+  border: 2px dashed var(--border-light);
+  color: var(--text-muted);
+  box-shadow: none;
+  align-items: center;
+  justify-content: center;
+}
+
+.empty-card-slot:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: rgba(99, 102, 241, 0.02);
+  transform: translateY(0); /* Remove o pulo no botão vazio */
+}
+
+.card-content-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.8rem;
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
+.card-content-empty i {
+  font-size: 1.5rem;
+}
+
+/* ==========================================================================
+   PAINÉIS INFERIORES (GRID)
+   ========================================================================== */
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 1.5rem;
+}
+
 .panel {
-  background: var(--bg-card);
-  border-radius: var(--radius-lg);
+  background: var(--bg-panel);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-panel);
   padding: 1.8rem;
-  border: 1px solid var(--border-color);
-  box-shadow: var(--shadow-sm);
-  transition: var(--transition);
-}
-
-.panel:hover {
-  box-shadow: var(--shadow-md);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
 }
 
 .panel h3 {
-  font-size: 1.2rem;
+  font-size: 1rem;
   font-weight: 600;
-  color: var(--text-primary);
-  margin-bottom: 1.5rem;
-  letter-spacing: -0.01em;
+  color: var(--text-main);
+  margin-bottom: 1.2rem;
 }
 
-/* Painel de ações */
-.actions-panel {
-  margin-bottom: 0; /* já está dentro do grid */
+.panel hr {
+  border: none;
+  border-top: 1px solid var(--border-light);
+  margin: 1.5rem 0;
 }
 
+/* Botões de Ação Rápida */
 .action-buttons {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 1rem;
-  margin-bottom: 1.8rem;
+  gap: 0.8rem;
 }
 
 .action-item {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.6rem;
-  padding: 1rem 0.5rem;
-  background: transparent;
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
+  gap: 0.5rem;
+  padding: 0.75rem;
+  font-size: 0.85rem;
   font-weight: 500;
-  color: var(--text-secondary);
+  color: var(--text-main);
+  background: var(--bg-body);
+  border: 1px solid var(--border-light);
+  border-radius: 10px;
   cursor: pointer;
-  transition: var(--transition);
-  font-size: 0.95rem;
-}
-
-.action-item i {
-  font-size: 1.1rem;
-  color: var(--text-secondary);
   transition: var(--transition);
 }
 
 .action-item:hover {
-  background: var(--primary-light);
-  border-color: var(--primary);
-  color: var(--primary);
-}
-
-.action-item:hover i {
-  color: var(--primary);
+  background: var(--accent);
+  border-color: var(--accent);
+  color: white;
 }
 
 .action-item.primary {
-  background: var(--primary);
-  border-color: var(--primary);
-  color: white;
-}
-
-.action-item.primary i {
-  color: white;
+  color: var(--accent);
+  background: rgba(99, 102, 241, 0.05);
+  border-color: rgba(99, 102, 241, 0.2);
 }
 
 .action-item.primary:hover {
-  background: #8b5cf6;
-  border-color: #8b5cf6;
-  transform: translateY(-2px);
+  color: white;
+  background: var(--accent);
 }
 
-hr {
-  border: none;
-  border-top: 1px solid var(--border-color);
-  margin: 1.8rem 0;
-}
-
-/* Toggles de segurança */
+/* Toggles de Segurança (Visual Minimalista) */
 .security-toggles {
   display: flex;
   flex-direction: column;
@@ -342,47 +275,25 @@ hr {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.5rem 0;
-  color: var(--text-secondary);
+  font-size: 0.9rem;
   font-weight: 500;
+  color: var(--text-muted);
+  cursor: pointer;
 }
 
 .toggle-item input[type="checkbox"] {
-  width: 3rem;
-  height: 1.5rem;
-  appearance: none;
-  background: var(--border-color);
-  border-radius: 1.5rem;
-  position: relative;
-  cursor: pointer;
-  transition: var(--transition);
-  border: 1px solid transparent;
-}
-
-.toggle-item input[type="checkbox"]:checked {
-  background: var(--primary);
-}
-
-.toggle-item input[type="checkbox"]::before {
-  content: '';
-  position: absolute;
   width: 1.2rem;
   height: 1.2rem;
-  background: white;
-  border-radius: 50%;
-  top: 0.15rem;
-  left: 0.15rem;
-  transition: var(--transition);
-  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  accent-color: var(--accent);
+  cursor: pointer;
 }
 
-.toggle-item input[type="checkbox"]:checked::before {
-  left: calc(100% - 1.35rem);
-}
-
-/* Painel de fatura */
+/* ==========================================================================
+   PAINEL DE FATURA
+   ========================================================================== */
 .invoice-panel {
-  margin-bottom: 2rem;
+  display: flex;
+  flex-direction: column;
 }
 
 .invoice-header {
@@ -392,155 +303,70 @@ hr {
   margin-bottom: 0.5rem;
 }
 
-.invoice-header h3 {
-  margin-bottom: 0;
-}
-
-.invoice-date {
-  font-size: 0.9rem;
-  color: var(--text-secondary);
-  background: var(--bg-global);
-  padding: 0.3rem 0.8rem;
-  border-radius: 2rem;
+.invoice-badge {
+  font-size: 0.7rem;
+  font-weight: 600;
+  background: #FEE2E2;
+  color: #DC2626; /* Vermelho suave para vencimento */
+  padding: 0.3rem 0.6rem;
+  border-radius: 20px;
 }
 
 .invoice-amount {
-  font-size: 2.5rem;
+  font-size: 2.2rem;
   font-weight: 700;
-  color: var(--text-primary);
-  margin: 0.5rem 0 1rem 0;
-  line-height: 1.2;
+  letter-spacing: -0.03em;
+  color: var(--text-main);
+  margin: 0.5rem 0 1.5rem 0;
 }
 
 .limit-bar {
-  height: 0.6rem;
-  background: var(--border-color);
-  border-radius: 1rem;
-  margin: 1rem 0 0.5rem;
+  height: 6px;
+  background: var(--bg-body);
+  border: 1px solid var(--border-light);
+  border-radius: 10px;
   overflow: hidden;
+  margin-bottom: 0.8rem;
 }
 
 .limit-used {
   height: 100%;
-  background: var(--primary);
-  border-radius: 1rem;
-  width: 65%; /* exemplo, pode ser dinâmico */
+  background: var(--accent);
+  border-radius: 10px;
+  transition: width 1s ease-in-out;
 }
 
 .limit-info {
-  color: var(--text-secondary);
-  font-size: 0.95rem;
-  margin-bottom: 1.5rem;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.limit-info strong {
+  color: #059669; /* Verde para limite disponível */
 }
 
 .btn-pay {
-  width: 100%;
+  margin-top: auto; /* Empurra o botão para o fundo */
   padding: 1rem;
-  background: var(--text-primary);
+  width: 100%;
+  background: var(--text-main);
   color: white;
   border: none;
-  border-radius: var(--radius-md);
+  border-radius: 10px;
   font-weight: 600;
-  font-size: 1rem;
+  font-size: 0.95rem;
   cursor: pointer;
   transition: var(--transition);
 }
 
 .btn-pay:hover {
-  background: var(--primary);
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-sm);
+  background: var(--accent);
 }
 
-/* Painel de histórico */
-.transaction-list {
-  list-style: none;
-}
-
-.transaction-list li {
-  display: flex;
-  align-items: center;
-  padding: 1rem 0;
-  border-bottom: 1px solid var(--border-color);
-}
-
-.transaction-list li:last-child {
-  border-bottom: none;
-}
-
-.tx-icon {
-  width: 2.8rem;
-  height: 2.8rem;
-  background: var(--bg-global);
-  border-radius: var(--radius-md);
-  display: flex;
-  align-items: center;
+/* Estado vazio da fatura */
+.invoice-panel.empty-state {
   justify-content: center;
-  margin-right: 1rem;
-  color: var(--text-secondary);
-  font-size: 1.2rem;
-  transition: var(--transition);
-}
-
-.tx-icon.success {
-  background: rgba(16, 185, 129, 0.1);
-  color: var(--success);
-}
-
-.tx-info {
-  flex: 1;
-}
-
-.tx-name {
-  display: block;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin-bottom: 0.2rem;
-}
-
-.tx-date {
-  font-size: 0.8rem;
-  color: var(--text-secondary);
-}
-
-.tx-value {
-  font-weight: 700;
-  font-size: 1rem;
-  padding: 0.3rem 0.8rem;
-  border-radius: 2rem;
-}
-
-.tx-value.negative {
-  color: var(--danger);
-  background: rgba(239, 68, 68, 0.1);
-}
-
-.tx-value.positive {
-  color: var(--success);
-  background: rgba(16, 185, 129, 0.1);
-}
-
-/* Ajustes responsivos finos */
-@media (max-width: 640px) {
-  .cards-header {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .filter-group {
-    justify-content: flex-start;
-  }
-
-  .bank-card {
-    height: 200px;
-    padding: 1.5rem;
-  }
-
-  .card-number {
-    font-size: 1.2rem;
-  }
-
-  .action-buttons {
-    grid-template-columns: 1fr;
-  }
+  align-items: center;
+  text-align: center;
+  color: var(--text-muted);
 }

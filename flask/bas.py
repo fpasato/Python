@@ -6,7 +6,7 @@ cursor = conn.cursor()
 # ativa foreign key
 conn.execute("PRAGMA foreign_keys = ON")
 
-# 👤 USUARIOS (login)
+# 👤 USUARIOS
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS usuarios (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -18,25 +18,25 @@ CREATE TABLE IF NOT EXISTS usuarios (
 )
 """)
 
-# 💰 CONTAS (dinheiro)
+# 💰 CONTAS
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS contas (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     usuario_id INTEGER NOT NULL,
     numero_conta TEXT NOT NULL UNIQUE,
     saldo REAL DEFAULT 0,
-
+    
     FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
 )
 """)
 
-# 📄 TRANSACOES (extrato)
+# 📄 TRANSACOES DA CONTA (PIX, depósito, débito)
 cursor.execute("""
-CREATE TABLE IF NOT EXISTS transacoes (
+CREATE TABLE IF NOT EXISTS transacoes_conta (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     conta_id INTEGER NOT NULL,
     valor REAL NOT NULL,
-    tipo TEXT NOT NULL,
+    tipo TEXT NOT NULL, -- deposito, pix, debito
     descricao TEXT,
     data DATETIME DEFAULT CURRENT_TIMESTAMP,
 
@@ -53,11 +53,64 @@ CREATE TABLE IF NOT EXISTS cartoes (
     validade TEXT,
     cvv TEXT,
     limite REAL,
-    tipo TEXT,
+    tipo TEXT, -- credito ou debito
 
     FOREIGN KEY (conta_id) REFERENCES contas(id)
 )
 """)
+
+# 🔒 evita duplicar cartão por tipo (1 crédito + 1 débito)
+cursor.execute("""
+CREATE UNIQUE INDEX IF NOT EXISTS idx_cartao_unico
+ON cartoes(conta_id, tipo)
+""")
+
+# 💳 TRANSACOES DO CARTAO (CRÉDITO)
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS transacoes_cartao (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    cartao_id INTEGER NOT NULL,
+    valor REAL NOT NULL,
+    descricao TEXT,
+    data DATETIME DEFAULT CURRENT_TIMESTAMP,
+    pago INTEGER DEFAULT 0, -- 0 = aberto, 1 = pago
+
+    FOREIGN KEY (cartao_id) REFERENCES cartoes(id)
+)
+""")
+
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS transacoes_pix (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    
+    transacao_id INTEGER NOT NULL, -- ligação com a tabela transacoes
+    
+    chave_origem TEXT,
+    chave_destino TEXT,
+    
+    tipo_chave TEXT, -- cpf, email, telefone, aleatoria
+    
+    descricao TEXT, -- mensagem opcional do pix
+    
+    FOREIGN KEY (transacao_id) REFERENCES transacoes_conta(id)
+);
+""")
+
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS chaves_pix (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    
+    conta_id INTEGER NOT NULL,
+    
+    tipo TEXT NOT NULL, -- cpf, email, telefone, aleatoria
+    chave TEXT NOT NULL UNIQUE,
+    
+    criada_em DATETIME DEFAULT CURRENT_TIMESTAMP,
+    
+    FOREIGN KEY (conta_id) REFERENCES contas(id)
+);
+""")
+
 
 conn.commit()
 conn.close()

@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template, request, session, redirect
 from utils.services.banco.emprestimo import simularEmprestimo
+from utils.validators import check_session
 
 
 emprestimos_bp = Blueprint("emprestimos", __name__, url_prefix="/emprestimos")
@@ -7,7 +8,7 @@ emprestimos_bp = Blueprint("emprestimos", __name__, url_prefix="/emprestimos")
 
 @emprestimos_bp.route("/")
 def emprestimos():
-    if 'user_id' not in session:
+    if not check_session():
         return redirect("/login")
     
     if request.method == "POST":

@@ -5,11 +5,74 @@ from flask import session
 
 DB_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), "database.db")
 
-def get_db():     # abre conexão com o banco
+def get_db():    
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     return conn
+
+
+
+def get_account_by_number(numero_conta):
+    conn = get_db()
+    cursor = conn.cursor()
     
+    with conn:
+        cursor.execute("""
+            SELECT c.id, u.nome_completo, u.cpf, c.saldo, c.numero_conta 
+            FROM contas c 
+            JOIN usuarios u ON c.usuario_id = u.id 
+            WHERE c.numero_conta = ?
+        """, (numero_conta,))
+        resultado = cursor.fetchone()
+    
+    if resultado is None:
+        return False
+    
+
+    conta = {
+        'id': resultado[0], 
+        'nome_completo': resultado[1],
+        'cpf': resultado[2],
+        'saldo': resultado[3], 
+        'numero_conta': resultado[4]
+    }
+    
+    return conta 
+
+
+
+
+def get_account_by_id(id):
+    conn = get_db()
+    cursor = conn.cursor()
+    
+    with conn:
+        cursor.execute("""
+            SELECT c.id, u.nome_completo, u.cpf, c.saldo, c.numero_conta 
+            FROM contas c 
+            JOIN usuarios u ON c.usuario_id = u.id 
+            WHERE c.id = ?
+        """, (id,))
+        resultado = cursor.fetchone()
+    
+    if resultado is None:
+        return False
+    
+    # Se encontrou, retorna os dados da conta
+    conta = {
+        'id': resultado[0], 
+        'nome_completo': resultado[1],
+        'cpf': resultado[2],
+        'saldo': resultado[3], 
+        'numero_conta': resultado[4]
+    }
+    
+    return conta 
+
+
+
+
+
 
 def account_already_exists(numero_conta):
     
@@ -56,62 +119,6 @@ def verifica_cpf(cpf):
         return True
     else:
         return False
-
-def get_account_by_number(numero_conta):
-    conn = get_db()
-    cursor = conn.cursor()
-    
-    with conn:
-        cursor.execute("""
-            SELECT c.id, u.nome_completo, u.cpf, c.saldo, c.numero_conta 
-            FROM contas c 
-            JOIN usuarios u ON c.usuario_id = u.id 
-            WHERE c.numero_conta = ?
-        """, (numero_conta,))
-        resultado = cursor.fetchone()
-    
-    if resultado is None:
-        return False
-    
-
-    conta = {
-        'id': resultado[0], 
-        'nome_completo': resultado[1],
-        'cpf': resultado[2],
-        'saldo': resultado[3], 
-        'numero_conta': resultado[4]
-    }
-    
-    return conta 
-
-
-def get_account_by_id(id):
-    conn = get_db()
-    cursor = conn.cursor()
-    
-    with conn:
-        cursor.execute("""
-            SELECT c.id, u.nome_completo, u.cpf, c.saldo, c.numero_conta 
-            FROM contas c 
-            JOIN usuarios u ON c.usuario_id = u.id 
-            WHERE c.id = ?
-        """, (id,))
-        resultado = cursor.fetchone()
-    
-    if resultado is None:
-        return False
-    
-    # Se encontrou, retorna os dados da conta
-    conta = {
-        'id': resultado[0], 
-        'nome_completo': resultado[1],
-        'cpf': resultado[2],
-        'saldo': resultado[3], 
-        'numero_conta': resultado[4]
-    }
-    
-    return conta 
-
 
 
 def email_exists(email):

@@ -194,10 +194,11 @@ h1.welcome-title span {
 }
 
 .other-options a:hover {
-  background: var(--bg-global);
+  background-color: var(--primary-light);
   color: var(--primary);
   border-color: var(--primary);
-  padding-left: 1.5rem;
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: var(--shadow-sm);
 }
 
 .other-options a:hover span {
@@ -212,7 +213,7 @@ h1.welcome-title span {
 }
 
 .other-options a.logout-btn:hover {
-  background-color: rgba(239, 68, 68, 0.05);
+  background-color: rgba(234, 98, 98, 0.381);
   border-color: var(--danger);
 }
 
