@@ -1,12 +1,5 @@
 
-
-
-
-
-
 def simularEmprestimo(valor, parcelas):
-
-
 
     return {
 

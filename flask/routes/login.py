@@ -1,72 +1,145 @@
-from flask import Blueprint, session, redirect, render_template, request
-import re
-from utils.validators import get_db
-from werkzeug.security import check_password_hash
+# routes/investimento.py
+from flask import Blueprint, render_template, session, request
+from utils.services.banco.investimento import (
+    listar_investimentos_ativos,
+    comprar_investimento_db,
+    vender_investimento_db,
+    get_history_prices,
+    carregar_carteira
+)
 
-login_bp = Blueprint("login", __name__, url_prefix="/login")
-@login_bp.route("/", methods=["GET", "POST"])
-def login():
-    if request.method == "POST":
-        email = request.form.get("email")
-        password = request.form.get("password")
+investimento_bp = Blueprint("investimento", __name__)
 
-        if not email or not password:
-            return render_template(
-                "login/index.html",
-                popup_message="Preencha todos os campos",
-                popup_type="error"
-            )
+@investimento_bp.route("/investimento", methods=["GET", "POST"])
+def investimento():
+    if "user_info" not in session:
+        return redirect("/login")
 
-        conn = get_db()
-        cursor = conn.cursor()
+    conta_id = session["user_info"]["conta_id"]
+    popup_message = None
+    popup_type = None
 
+    try:
+        ativos = listar_investimentos_ativos()
+        carteira = carregar_carteira(conta_id)
+        valor_carteira = sum(item["quantidade"]*item["preco_medio"] for item in carteira) if carteira else 0
+    except Exception as e:
+        ativos, carteira, valor_carteira = [], [], 0
+        popup_message = f"Erro ao carregar investimentos: {str(e)}"
+        popup_type = "error"
+
+    return render_template(
+        "investimento/index.html",
+        ativos_disponiveis=ativos,
+        carteira=carteira,
+        valor_carteira=valor_carteira,
+        session=session,
+        popup_message=popup_message,
+        popup_type=popup_type
+    )
+
+
+@investimento_bp.route("/investimento/comprar", methods=["POST"])
+def comprar_investimento():
+    if "user_info" not in session:
+        return redirect("/login")
+
+    conta_id = session["user_info"]["conta_id"]
+    investimento_id = request.form.get("investimento_id")
+    quantidade = request.form.get("quantidade")
+    popup_message = None
+    popup_type = None
+
+    if not investimento_id or not quantidade:
+        popup_message = "Preencha todos os campos da compra"
+        popup_type = "error"
+    else:
         try:
-            cursor.execute("""
-                SELECT id, nome_completo, cpf, email, senha 
-                FROM usuarios 
-                WHERE email = ?
-            """, (email,))
-            
-            account = cursor.fetchone()
+            quantidade = float(quantidade)
+            if quantidade <= 0:
+                raise ValueError("Quantidade inválida")
+            valor_total = comprar_investimento_db(conta_id, investimento_id, quantidade)
+            popup_message = f"Compra realizada: {quantidade} cotas por R$ {valor_total:.2f}"
+            popup_type = "success"
+        except Exception as e:
+            popup_message = str(e)
+            popup_type = "error"
 
-            if not account:
-                return render_template(
-                    "login/index.html",
-                    popup_message="Email não encontrado",
-                    popup_type="error"
-                )
+    # Recarrega ativos e carteira para renderizar a mesma página
+    ativos = listar_investimentos_ativos()
+    carteira = carregar_carteira(conta_id)
+    valor_carteira = sum(item["quantidade"]*item["preco_medio"] for item in carteira) if carteira else 0
 
-            if not check_password_hash(account[4], password):
-                return render_template(
-                    "login/index.html",
-                    popup_message="Senha incorreta",
-                    popup_type="error"
-                )
+    return render_template(
+        "investimento/index.html",
+        ativos_disponiveis=ativos,
+        carteira=carteira,
+        valor_carteira=valor_carteira,
+        session=session,
+        popup_message=popup_message,
+        popup_type=popup_type
+    )
 
-            # Conta
-            cursor.execute(
-                "SELECT numero_conta, saldo FROM contas WHERE usuario_id = ?",
-                (account[0],)
-            )
-            conta_result = cursor.fetchone()
 
-        finally:
-            conn.close()
+@investimento_bp.route("/investimento/vender", methods=["POST"])
+def vender_investimento():
+    if "user_info" not in session:
+        return redirect("/login")
 
-        # Session
-        session['user_info'] = {
-            'user_id': account[0],
-            'user_name': account[1].split()[0],
-            'user_full_name': account[1],
-            'cpf': account[2],
-            'email': account[3],
-            'conta_numero': conta_result[0] if conta_result else None
-        }
-        
-        # Salva número da conta na sessão
-        if conta_result:
-            session['numero_conta'] = conta_result[0]
+    conta_id = session["user_info"]["conta_id"]
+    investimento_id = request.form.get("investimento_id")
+    quantidade = request.form.get("quantidade")
+    popup_message = None
+    popup_type = None
 
-        return redirect("/home")
+    if not investimento_id or not quantidade:
+        popup_message = "Preencha todos os campos da venda"
+        popup_type = "error"
+    else:
+        try:
+            quantidade = float(quantidade)
+            if quantidade <= 0:
+                raise ValueError("Quantidade inválida")
+            valor_venda = vender_investimento_db(conta_id, investimento_id, quantidade)
+            popup_message = f"Venda realizada: {quantidade} cotas por R$ {valor_venda:.2f}"
+            popup_type = "success"
+        except Exception as e:
+            popup_message = str(e)
+            popup_type = "error"
 
-    return render_template("login/index.html")
+    ativos = listar_investimentos_ativos()
+    carteira = carregar_carteira(conta_id)
+    valor_carteira = sum(item["quantidade"]*item["preco_medio"] for item in carteira) if carteira else 0
+
+    return render_template(
+        "investimento/index.html",
+        ativos_disponiveis=ativos,
+        carteira=carteira,
+        valor_carteira=valor_carteira,
+        session=session,
+        popup_message=popup_message,
+        popup_type=popup_type
+    )
+
+
+@investimento_bp.route("/investimento/historico/<int:investimento_id>")
+def historico_json(investimento_id):
+    try:
+        history = get_history_prices(investimento_id, limit=30)
+        dados = [{"data": h["data"], "preco": h["preco"]} for h in history]
+        return jsonify(dados)
+    except Exception as e:
+        # Renderiza a página principal com erro
+        conta_id = session["user_info"]["conta_id"]
+        ativos = listar_investimentos_ativos()
+        carteira = carregar_carteira(conta_id)
+        valor_carteira = sum(item["quantidade"]*item["preco_medio"] for item in carteira) if carteira else 0
+        return render_template(
+            "investimento/index.html",
+            ativos_disponiveis=ativos,
+            carteira=carteira,
+            valor_carteira=valor_carteira,
+            session=session,
+            popup_message=f"Erro ao carregar histórico: {str(e)}",
+            popup_type="error"
+        )

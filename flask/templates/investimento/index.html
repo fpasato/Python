@@ -1,0 +1,163 @@
+{% extends 'layouts/base_home.html' %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/investimentos/style.css') }}">
+<script defer src="{{ url_for('static', filename='js/investimento.js') }}"></script>
+
+<div class="invest-wrapper">
+    <div class="app-container">
+        <header class="invest-header">
+            <div class="balance-card">
+                <span>Saldo disponível para investir</span>
+                <h2>R$ {{ "{:,.2f}".format(session['user_info']['saldo']) }}</h2>
+            </div>
+        </header>
+
+        <div class="tabs-wrapper">
+            <input type="radio" name="invest-tabs" id="tab-carteira" checked>
+            <input type="radio" name="invest-tabs" id="tab-explorar">
+
+            <div class="tabs-nav">
+                <label for="tab-carteira" class="tab-label">📊 Minha Carteira</label>
+                <label for="tab-explorar" class="tab-label">🚀 Investir Agora</label>
+            </div>
+
+            <div class="tabs-content">
+                <!-- Aba Carteira -->
+                <div id="content-carteira" class="tab-pane">
+                    <div class="resumo-grid">
+                        <div class="resumo-card">
+                            <small>Valor da Carteira (custo)</small>
+                            <p>R$ {{ "{:,.2f}".format(valor_carteira) }}</p>
+                        </div>
+                        <!-- Botão Liquidar (pode ser implementado depois) -->
+                        <button class="btn btn-primary" disabled>Liquidar Carteira</button>
+                    </div>
+
+                    <h3 class="section-title">Ativos em Custódia</h3>
+                    <div class="investimentos-lista">
+                        {% if carteira and carteira|length > 0 %}
+                            {% for item in carteira %}
+                            <div class="invest-item-card">
+                                <div class="item-info">
+                                    <strong>{{ item['nome'] }}</strong>
+                                    <span class="badge badge-progress">Em andamento</span>
+                                </div>
+                                <div class="item-details">
+                                    <div><small>Quantidade:</small> <span>{{ item['quantidade'] }}</span></div>
+                                    <div><small>Preço médio:</small> <span>R$ {{ "{:,.2f}".format(item['preco_medio']) }}</span></div>
+                                </div>
+                                <div class="item-actions">
+                                    <form action="{{ url_for('investimento.vender_investimento') }}" method="POST" class="vender-form">
+                                        <input type="hidden" name="investimento_id" value="{{ item['investimento_id'] }}">
+                                        <input type="number" name="quantidade" placeholder="Qtd" min="1" max="{{ item['quantidade'] }}" required class="qtd-input">
+                                        <button type="submit" class="btn btn-secondary btn-small">Vender</button>
+                                    </form>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="empty-state">
+                                <h3>Você ainda não tem investimentos</h3>
+                                <p>Comece investindo agora 🚀</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Aba Explorar -->
+                <div id="content-explorar" class="tab-pane">
+                    <div class="ativos-grid">
+                        {% for ativo in ativos_disponiveis %}
+                        <div class="ativo-card"
+                             data-nome="{{ ativo['nome'] }}"
+                             data-descricao="{{ ativo['descricao'] }}"
+                             data-preco="{{ ativo['valor_cota'] }}"
+                             data-risco="{{ ativo['risco'] }}"
+                             data-ativo-id="{{ ativo['id'] }}"
+                             data-img="{{ url_for('static', filename='images/' + ativo['imagem']) }}">
+                            <div class="ativo-header">
+                                <div class="ativo-logo">
+                                    {% if ativo['imagem'] %}
+                                    <img src="{{ url_for('static', filename='images/' + ativo['imagem']) }}"
+                                         alt="Logo {{ ativo['nome'] }}">
+                                    {% else %}
+                                    <span class="img-placeholder">{{ ativo['nome'][0] }}</span>
+                                    {% endif %}
+                                </div>
+                                <div class="header-text">
+                                    <h3>{{ ativo['nome'] }}</h3>
+                                    <span class="risco {{ ativo['risco'] }}">Risco {{ ativo['risco'] }}</span>
+                                </div>
+                            </div>
+                            <div class="ativo-body">
+                                <p class="descricao">{{ ativo['descricao'] }}</p>
+                                <div class="cota-info">
+                                    <small>Valor da Cota:</small>
+                                    <strong>R$ {{ "{:,.2f}".format(ativo['valor_cota']) }}</strong>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de detalhes do investimento (2 colunas) -->
+<div id="modal-overlay" class="modal-overlay">
+    <div class="modal-card">
+        <button class="close-modal">&times;</button>
+        <div class="modal-grid">
+            <!-- Coluna Esquerda: Informações -->
+            <div class="modal-left">
+                <div class="modal-logo">
+                    <img id="modal-img" src="" alt="Logo">
+                </div>
+                <h2 id="modal-nome"></h2>
+                <span id="modal-risco" class="badge badge-risco"></span>
+                <p id="modal-descricao" class="modal-desc"></p>
+                <div class="info-row">
+                    <strong>Valor da cota</strong>
+                    <span id="modal-preco" class="valor"></span>
+                </div>
+                <form action="{{ url_for('investimento.comprar_investimento') }}" method="POST" class="quick-invest">
+                    <input type="hidden" id="modal-ativo-id" name="investimento_id" value="">
+                    <div class="input-group">
+                        <input type="number" name="quantidade" placeholder="Quantidade de cotas" min="1" required>
+                        <small>Total: <span class="calc-total">R$ 0,00</span></small>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Comprar</button>
+                </form>
+            </div>
+            <!-- Coluna Direita: Gráfico -->
+            <div class="modal-right">
+                <h4>📈 Histórico de preços (últimos 30 dias)</h4>
+                <div class="chart-container">
+                    <canvas id="grafico-precos"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- Flash messages -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <div class="flash-messages">
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }}">{{ message }}</div>
+      {% endfor %}
+    </div>
+    <script>
+      setTimeout(() => {
+        document.querySelectorAll('.flash-messages .alert').forEach(el => el.remove());
+      }, 5000);
+    </script>
+  {% endif %}
+{% endwith %}
+{% endblock %}

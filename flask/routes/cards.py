@@ -14,7 +14,7 @@ def cards():
     titular = user_info.get('user_full_name', 'USUÁRIO')
     titular_upper = titular.upper()
     
-    numero_conta = session['numero_conta']
+    numero_conta = session['user_info']['numero_conta']
     
     cartao_credito = get_card(numero_conta, "credito")
     cartao_debito = get_card(numero_conta, "debito")
@@ -51,7 +51,7 @@ def createcards():
         return redirect("/login")
 
 
-    numero_conta = session['numero_conta']
+    numero_conta = session['user_info']['numero_conta']
     tipo = request.form.get("tipo") or request.args.get("tipo")
 
     if tipo not in ["credito", "debito"]:

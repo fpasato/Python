@@ -1,0 +1,477 @@
+/* ===== VARIÁVEIS GLOBAIS ===== */
+:root {
+    --primary: #0DA694;
+    --dark: #1e293b;
+    --text: #334155;
+    --text-muted: #64748b;
+    --bg: #F8FAFC;
+    --border: #e2e8f0;
+    --card-bg: #ffffff;
+    --shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.1);
+    --radius: 16px;
+    --radius-lg: 24px;
+}
+
+/* ===== RESET / BASE ===== */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: system-ui, -apple-system, sans-serif;
+}
+
+/* ===== LAYOUT ===== */
+.invest-wrapper {
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.app-container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* ===== COMPONENTES REUTILIZÁVEIS ===== */
+.card {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 20px;
+}
+
+.badge {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.badge-risco.alto { background: #fee2e2; color: #ef4444; }
+.badge-risco.medio { background: #fef3c7; color: #f59e0b; }
+.badge-risco.baixo { background: #dcfce7; color: #22c55e; }
+
+.badge-progress { background: #dbeafe; color: #2563eb; }
+.badge-done { background: #dcfce7; color: #22c55e; }
+
+.btn {
+    border: none;
+    padding: 12px 16px;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-primary {
+    background: var(--primary);
+    color: white;
+}
+
+.btn-primary:hover {
+    opacity: 0.9;
+    transform: translateY(-2px);
+}
+
+.btn-outline {
+    background: transparent;
+    border: 1px solid var(--border);
+}
+
+/* ===== HEADER ===== */
+.balance-card {
+    background: var(--dark);
+    color: white;
+    padding: 25px;
+    border-radius: var(--radius-lg);
+    margin-bottom: 25px;
+}
+
+.balance-card h2 {
+    font-size: 2rem;
+    color: var(--primary);
+    margin-top: 5px;
+}
+
+/* ===== TABS ===== */
+.tabs-wrapper input[type="radio"] { display: none; }
+
+.tabs-nav {
+    display: flex;
+    gap: 10px;
+    background: var(--border);
+    padding: 5px;
+    border-radius: 12px;
+    margin-bottom: 25px;
+}
+
+.tab-label {
+    flex: 1;
+    text-align: center;
+    padding: 12px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+#tab-carteira:checked ~ .tabs-nav label[for="tab-carteira"],
+#tab-explorar:checked ~ .tabs-nav label[for="tab-explorar"] {
+    background: white;
+    color: var(--primary);
+    box-shadow: var(--shadow);
+}
+
+.tab-pane { display: none; animation: fade 0.3s; }
+#tab-carteira:checked ~ .tabs-content #content-carteira { display: block; }
+#tab-explorar:checked ~ .tabs-content #content-explorar { display: block; }
+
+@keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+
+/* ===== CARTEIRA ===== */
+.resumo-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.valor-positivo { color: #22c55e; }
+
+.investimentos-lista {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.invest-item-card {
+    background: white;
+    padding: 15px;
+    border-radius: 12px;
+    border-left: 5px solid var(--primary);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: var(--shadow);
+}
+
+/* ===== GRID DE ATIVOS ===== */
+.ativos-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+}
+
+@media (max-width: 1024px) { .ativos-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 600px) { .ativos-grid { grid-template-columns: 1fr; } }
+
+.ativo-card {
+    background: white;
+    padding: 20px;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow);
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    border: 1px solid rgba(0,0,0,0.03);
+}
+
+.ativo-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+}
+
+.ativo-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.ativo-logo {
+    width: 80px;
+    height: 80px;
+    min-width: 80px;
+    background: #f1f5f9;
+    border-radius: 18px;
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--border);
+}
+
+.ativo-logo img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.img-placeholder {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--primary);
+}
+
+.header-text h3 {
+    font-size: 1.2rem;
+    color: var(--dark);
+    margin-bottom: 4px;
+}
+
+.ativo-body {
+    flex: 1;
+}
+
+.descricao {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+    margin-bottom: 12px;
+}
+
+.cota-info {
+    background: #f8fafc;
+    padding: 10px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.cota-info strong {
+    color: var(--primary);
+    font-size: 1.1rem;
+}
+
+/* ===== MODAL 2 COLUNAS ===== */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.7);
+    backdrop-filter: blur(6px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 20px;
+}
+
+.modal-overlay.active { display: flex; }
+
+.modal-card {
+    background: white;
+    border-radius: 32px;
+    width: 100%;
+    max-width: 900px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 25px 50px -12px rgba(0,0,0,0.3);
+    animation: modalPop 0.3s ease;
+}
+
+@keyframes modalPop {
+    from { transform: scale(0.95) translateY(10px); opacity: 0; }
+    to { transform: scale(1) translateY(0); opacity: 1; }
+}
+
+.modal-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    padding: 30px;
+}
+
+/* Coluna Esquerda - Info */
+.modal-left {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.modal-logo {
+    width: 120px;
+    height: 120px;
+    background: #f1f5f9;
+    border-radius: 24px;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 10px;
+}
+
+.modal-logo img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.modal-left h2 {
+    font-size: 1.8rem;
+    color: var(--dark);
+}
+
+.modal-desc {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--text-muted);
+}
+
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 0;
+    border-top: 1px solid var(--border);
+}
+
+.info-row strong {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+.info-row .valor {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: var(--primary);
+}
+
+/* Formulário de investimento */
+.quick-invest {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.input-group input {
+    padding: 12px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    font-size: 1rem;
+}
+
+.calc-total {
+    font-weight: 600;
+    color: var(--dark);
+}
+
+/* Coluna Direita - Gráfico */
+.modal-right {
+    background: #f8fafc;
+    border-radius: 24px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+.modal-right h4 {
+    color: var(--dark);
+    margin-bottom: 15px;
+    font-size: 1.1rem;
+}
+
+.chart-container {
+    flex: 1;
+    min-height: 250px;
+    position: relative;
+}
+
+#grafico-precos {
+    width: 100%;
+    height: 100%;
+    max-height: 300px;
+}
+
+/* Fechar modal */
+.close-modal {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #f1f5f9;
+    border: none;
+    font-size: 1.2rem;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: 0.2s;
+    z-index: 10;
+}
+
+.close-modal:hover {
+    background: var(--border);
+    color: var(--dark);
+    transform: rotate(90deg);
+}
+
+/* Responsivo modal */
+@media (max-width: 700px) {
+    .modal-grid {
+        grid-template-columns: 1fr;
+    }
+    .modal-card {
+        max-width: 500px;
+    }
+}
+
+/* ===== UTILITÁRIOS ===== */
+.empty-state {
+    background: white;
+    padding: 30px;
+    border-radius: var(--radius);
+    text-align: center;
+    box-shadow: var(--shadow);
+}
+
+/* ===== ESTILOS PARA VENDA ===== */
+.item-actions {
+    display: flex;
+    align-items: center;
+}
+
+.vender-form {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.qtd-input {
+    width: 60px;
+    padding: 6px 8px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 0.9rem;
+}
+
+.btn-small {
+    padding: 6px 12px;
+    font-size: 0.85rem;
+}
+
+.btn-secondary {
+    background: #6b7280;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.btn-secondary:hover {
+    background: #4b5563;
+}

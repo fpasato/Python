@@ -7,186 +7,188 @@
 <div class="pix-wrapper">
     <div class="app-container">
         <header class="header-pix">
-            <h1>
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                    stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
-                </svg>
-                PIX - Lumo Digital
-            </h1>
+            <h1>Lumo <span style="color: var(--primary)">Digital</span></h1>
         </header>
 
         <div class="pix-balance">
-            <span>Saldo disponível</span>
-            <h2>R$ {{ saldo }}</h2>
+            <span>Saldo em conta</span>
+            <h2>R$ {{ "{:,.2f}".format(session['user_info']['saldo'])}}</h2>
         </div>
 
-        <div class="tabs-container">
-            <button class="tab-btn active" onclick="switchPixTab('gerenciar')">Gerenciar Chaves</button>
-            <button class="tab-btn" onclick="switchPixTab('pagar')">Pagar / Transferir</button>
-        </div>
+        <div class="tabs-wrapper">
+            <input type="radio" name="pix-tabs" id="tab1" {% if session.get('active_tab') !='transferir' %}checked{%
+                endif %}>
 
-        <div class="chaves-container">
+            <input type="radio" name="pix-tabs" id="tab2" {% if session.get('active_tab')=='transferir' %}checked{%
+                endif %}>
 
-            <!-- Tabela de chaves -->
-            <div class="card">
-                <h2>Minhas Chaves Registradas</h2>
-                <div class="table-container">
-                    <table class="pix-table" id="tabela-chaves">
-                        <thead>
-                            <tr>
-                                <th>Tipo</th>
-                                <th>Chave</th>
-                                <th style="text-align: right;">Ação</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for key in keys %}
-                            <tr>
-                                <td>{{ key[2] }}</td>
-                                <td><span class="key-badge">{{ key[3] }}</span></td>
-                                <td style="text-align: right;">
-                                    {% if key[2] == 'aleatoria' %}
-                                    <button class="btn-danger" onclick="excluirChave({{ key[0] }})">Excluir</button>
-                                    {% endif %}
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
+            <div class="tabs-nav">
+                <label for="tab1" class="tab-label">Gerenciar Chaves</label>
+                <label for="tab2" class="tab-label">Pagar ou Transferir</label>
             </div>
 
-            <!-- Gerenciamento de chaves -->
-            <section id="gerenciar" class="pix-section active">
-                <div class="card">
-                    <h2>Cadastrar Nova Chave</h2>
-                    <form id="form-chave">
-                        <div class="form-grid">
-                            <div class="input-group">
-                                <label for="tipo-chave">Tipo de Chave</label>
-                                <select id="tipo-chave" required>
-                                    <option value="aleatoria">Chave Aleatória</option>
-                                </select>
+            <div class="tabs-content">
+                <div id="content1" class="tab-pane {% if session.get('active_tab') != 'transferir' %}active{% endif %}">
+                    <div class="chaves-container">
+                        <div class="card">
+                            <h2>Minhas Chaves</h2>
+                            <div class="table-container">
+                                <table class="pix-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Tipo</th>
+                                            <th>Chave</th>
+                                            <th style="text-align: right;">Ação</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for key in keys %}
+                                        <tr>
+                                            <td><span class="type-badge">{{ key[2] }}</span></td>
+                                            <td style="color: var(--text-muted)">{{ key[3] }}</td>
+                                            <td style="text-align: right;">
+                                                {% if key[2] == 'aleatoria' %}
+                                                <a href="{{ url_for('pix.exclude_key', key_id=key[0]) }}"
+                                                    class="btn-danger-link">Remover</a>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
                             </div>
-                            <div class="input-group">
-                                <div class="input-group">
-                                    <button type="button" class="btn-primary" onclick="gerarChaveAleatoria()">
-                                        Gerar Chave Aleatória
-                                    </button>
+                        </div>
 
-                                    <input type="text" id="chave-aleatoria" value="" readonly>
-                                    <button type="button" id="btn-registrar" class="btn-primary"
-                                        onclick="adicionarChavePix()" disabled>
-                                        Registrar Chave
-                                    </button>
+                        <div class="card" style="align-self: start;">
+                            <h2>Nova Chave</h2>
+                            <button type="button" class="btn-primary btn-ghost" onclick="generateKey()">
+                                Gerar Aleatória
+                            </button>
+
+                            <form method="post" action="/pix/register_key">
+                                <input type="text" name="chave" value="{{ session.get('temp_key', '') }}"
+                                    readonly class="input-readonly">
+
+                                <button type="submit" id="btn-confirmar" class="btn-primary" {% if not
+                                    session.get('temp_key') %}disabled{% endif %}>
+                                    Confirmar Registro
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div id="content2" class="tab-pane {% if session.get('active_tab') == 'transferir' %}active{% endif %}">
+                    <div class="card transfer-card">
+                        <h2>Transferência Instantânea</h2>
+
+                        {% if not session.get('destinatario_nome') %}
+                        <!-- 🔹 FORM DE VERIFICAÇÃO -->
+                        <form method="post" action="/pix/transferir">
+                            <div class="input-group">
+                                <label>Chave PIX do destinatário</label>
+                                <div class="verify-wrapper">
+                                    <input type="text" name="chave_destino" required class="input-main">
                                 </div>
                             </div>
 
-                        </div>
-                    </form>
-                </div>
-            </section>
-
-            <!-- Pagamento / transferência -->
-            <section id="pagar" class="pix-section">
-                <div class="card">
-                    <h2>Realizar Transferência PIX</h2>
-                    <form id="form-pagar">
-                        <div class="input-group" style="margin-bottom: 24px;">
-                            <label for="chave-destino">Chave PIX do Destinatário</label>
-                            <input type="text" id="chave-destino" placeholder="Celular, CPF, E-mail ou Aleatória">
-                        </div>
-                        <div class="form-grid">
                             <div class="input-group">
-                                <label for="valor-pix">Valor (R$)</label>
-                                <input type="number" id="valor-pix" placeholder="0,00" step="0.01">
+                                <label>Valor para transferir</label>
+                                <div class="currency-input">
+                                    <span>R$</span>
+                                    <input type="text" id="valor_mask_pix" name="valor_visual" placeholder="0,00" inputmode="numeric"
+                                        oninput="formatarMoeda(this)" required class="currency-input">
+                                    <input type="hidden" id="valor_real_pix" name="valor" value="">
+                                </div>
                             </div>
-                            <div class="input-group">
-                                <label for="mensagem-pix">Descrição (Opcional)</label>
-                                <input type="text" id="mensagem-pix" placeholder="Ex: Pagamento">
-                            </div>
-                        </div>
-                        <button type="button" class="btn-primary" onclick="simularEnvioPix()">Enviar PIX</button>
-                    </form>
-                </div>
-            </section>
 
+                            <button type="submit" name="action" value="verificar" class="btn-primary">
+                                Verificar destinatário
+                            </button>
+                        </form>
+
+                        {% else %}
+                        <!-- 🔹 CONFIRMAÇÃO -->
+                        <div class="box-destinatario">
+                            <h3>Confirmar transferência</h3>
+
+                            <p><strong>Nome:</strong> {{ session['destinatario_nome'] }}</p>
+                            <p><strong>CPF:</strong> {{ session['destinatario_cpf'] }}</p>
+                            <p><strong>Chave:</strong> {{ session['destinatario_chave'] }}</p>
+                            <p><strong>Valor:</strong> R$ {{ session['destinatario_valor'] }}</p>
+
+                            <form method="POST" action="/pix/transferir">
+                                <input type="hidden" name="action" value="pagar">
+                                <input type="hidden" name="chave_destino" value="{{ session['destinatario_chave'] }}">
+                                <input type="hidden" name="valor" value="{{ session['destinatario_valor'] }}">
+
+                                <button type="submit" class="btn-primary">
+                                    Confirmar pagamento
+                                </button>
+                            </form>
+
+                            <!-- botão cancelar -->
+                            <form method="POST" action="/pix/cancelar">
+                                <button type="submit" class="btn-secondary" style="margin-top:10px;">
+                                    Cancelar
+                                </button>
+                            </form>
+                        </div>
+                        {% endif %}
+
+                        <p class="security-note"
+                            style="text-align:center; margin-top:20px; font-size:0.75rem; color:var(--text-muted);">
+                            🔒 Transação protegida pelo Lumo Digital
+                        </p>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
-
 <script>
-    // Troca de abas
-    function switchPixTab(tabId) {
-        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-        document.querySelectorAll('.pix-section').forEach(sec => sec.classList.remove('active'));
-        event.currentTarget.classList.add('active');
-        document.getElementById(tabId).classList.add('active');
-    }
-
-    // Gerar chave aleatória
-    function gerarChaveAleatoria() {
-        fetch('/pix/gerar-chave', { method: 'POST', headers: { 'Content-Type': 'application/json' } })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    document.getElementById('chave-aleatoria').value = data.chave;
-                    document.getElementById('btn-registrar').disabled = false;
-                    showPopup('Chave gerada com sucesso!', 'success');
-                } else {
-                    showPopup('Erro: ' + data.message, 'error');
-                }
-            }).catch(e => {
-                console.error(e);
-                showPopup('Erro ao gerar chave', 'error');
+    async function generateKey() {
+        try {
+            const response = await fetch("/pix/generate_random_key", {
+                method: "POST"
             });
+
+            const data = await response.json();
+
+            if (data.success) {
+                // coloca chave no input
+                document.querySelector("input[name='chave']").value = data.chave;
+
+                // habilita botão
+                document.getElementById("btn-confirmar").disabled = false;
+            } else {
+                alert("Erro ao gerar chave");
+            }
+
+        } catch (error) {
+            console.error(error);
+            alert("Erro na requisição");
+        }
     }
-
-    // Registrar chave aleatória
-    function adicionarChavePix() {
-        const chave = document.getElementById('chave-aleatoria').value;
-        if (!chave) return showPopup('Gere uma chave antes de registrar', 'error');
-
-        fetch('/pix/registrar-chave', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ chave })
-        })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    showPopup('Chave registrada com sucesso!', 'success');
-                    location.reload();
-                } else {
-                    showPopup('Erro: ' + data.message, 'error');
-                }
-            }).catch(e => {
-                console.error(e);
-                showPopup('Erro ao registrar chave', 'error');
-            });
-    }
-
-    // Excluir chave aleatória
-    function excluirChave(keyId) {
-        if (!confirm('Tem certeza que deseja excluir esta chave PIX?')) return;
-
-        fetch(`/pix/excluir-chave/${keyId}`, { method: 'POST', headers: { 'Content-Type': 'application/json' } })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    showPopup('Chave excluída com sucesso!', 'success');
-                    location.reload();
-                } else {
-                    showPopup('Erro: ' + data.message, 'error');
-                }
-            }).catch(e => {
-                console.error(e);
-                showPopup('Erro ao excluir chave', 'error');
-            });
+    
+    function formatarMoeda(input) {
+        let valor = input.value.replace(/\D/g, '');
+        
+        if (valor === '') {
+            document.getElementById('valor_real_pix').value = '';
+            return;
+        }
+        
+        // Converte para centavos e formata
+        valor = parseInt(valor) / 100;
+        valor = valor.toFixed(2).replace('.', ',');
+        valor = valor.replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1.');
+        
+        input.value = valor;
+        
+        // Atualiza campo hidden com valor numérico (substitui vírgula por ponto)
+        document.getElementById('valor_real_pix').value = valor.replace(/\./g, '').replace(',', '.');
     }
 </script>
 
-<script src="{{ url_for('static', filename='js/pix.js') }}"></script>
 {% include "components/popup.html" %}
 {% endblock %}

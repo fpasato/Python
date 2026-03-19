@@ -111,6 +111,53 @@ CREATE TABLE IF NOT EXISTS chaves_pix (
 );
 """)
 
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS investimentos (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    
+    nome TEXT NOT NULL,
+    descricao TEXT,
+    
+    valor_cota REAL NOT NULL,
+    
+    imagem TEXT,
+    risco TEXT DEFAULT 'medio',
+    
+    ativo INTEGER DEFAULT 1,
+    
+    criado_em DATETIME DEFAULT CURRENT_TIMESTAMP
+)
+""")
+
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS historico_precos (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    
+    investimento_id INTEGER NOT NULL,
+    preco REAL NOT NULL,
+    
+    data DATETIME DEFAULT CURRENT_TIMESTAMP,
+    
+    FOREIGN KEY (investimento_id) REFERENCES investimentos(id)
+)
+""")
+
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS carteira_investimentos (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    
+    conta_id INTEGER NOT NULL,
+    investimento_id INTEGER NOT NULL,
+    
+    quantidade REAL NOT NULL,
+    preco_medio REAL NOT NULL,
+    
+    criado_em DATETIME DEFAULT CURRENT_TIMESTAMP,
+    
+    FOREIGN KEY (conta_id) REFERENCES contas(id),
+    FOREIGN KEY (investimento_id) REFERENCES investimentos(id)
+)
+""")
 
 conn.commit()
 conn.close()

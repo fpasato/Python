@@ -14,7 +14,7 @@ def versaldo():
     if not check_session():
         return redirect("/login")
     
-    numero_conta = session.get("numero_conta")
+    numero_conta = session['user_info']['numero_conta']
     user = get_account_by_number(numero_conta)
     
     return render_template("versaldo/index.html", conta_usuario=user, nome_titular=user['nome_completo'])
