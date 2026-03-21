@@ -1,0 +1,171 @@
+/* =========================================
+   VARIÁVEIS DE COR E ESTILO
+   ========================================= */
+:root {
+    /* Fundo suave, sem ser um branco ofuscante */
+    --bg-body: #eef2f6; 
+    --bg-gradient: linear-gradient(135deg, #eef2f6 0%, #e0e5ec 100%);
+    
+    /* Cores Lumo (ajuste conforme a paleta oficial do seu banco) */
+    --lumo-primary: #4f46e5; /* Azul/Indigo moderno */
+    --lumo-primary-hover: #4338ca;
+    --lumo-accent-light: rgba(79, 70, 229, 0.08);
+    
+    /* Tipografia e Textos */
+    --text-main: #1e293b; /* Cinza chumbo escuro, mais suave que preto puro */
+    --text-muted: #64748b;
+    
+    /* Estrutura */
+    --radius-lg: 20px;
+    --radius-md: 12px;
+    --transition: all 0.3s ease;
+}
+
+/* =========================================
+   RESET BÁSICO E BODY
+   ========================================= */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background: var(--bg-gradient);
+    color: var(--text-main);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 2rem 1rem;
+    overflow-y: auto;
+}
+
+/* =========================================
+   CONTÊINER PRINCIPAL (Efeito Glass/Premium)
+   ========================================= */
+main {
+    background: rgba(255, 255, 255, 0.65);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03), 0 1px 3px rgba(0, 0, 0, 0.02);
+    width: 100%;
+    max-width: 600px;
+    padding: 2.5rem;
+}
+
+/* =========================================
+   TIPOGRAFIA
+   ========================================= */
+h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 2rem;
+    color: var(--lumo-primary);
+    letter-spacing: -0.5px;
+}
+
+h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-top: 1.8rem;
+    margin-bottom: 0.5rem;
+    color: var(--text-main);
+}
+
+p {
+    font-size: 0.95rem;
+    color: var(--text-muted);
+    margin-bottom: 1rem;
+}
+
+/* =========================================
+   ESTILIZAÇÃO DO FORMULÁRIO E RADIOS
+   ========================================= */
+form {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Transformando os labels em cards clicáveis */
+label {
+    display: flex;
+    align-items: center;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: var(--radius-md);
+    padding: 1rem 1.2rem;
+    margin-bottom: 0.75rem;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--text-main);
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+/* Efeito Hover nos cards de resposta */
+label:hover {
+    border-color: #cbd5e1;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    transform: translateY(-1px);
+}
+
+/* Deixando o input do radio com a cor da marca */
+input[type="radio"] {
+    accent-color: var(--lumo-primary);
+    width: 1.1rem;
+    height: 1.1rem;
+    margin-right: 0.8rem;
+    cursor: pointer;
+}
+
+/* CSS Moderno: Destaca o card inteiro quando o radio é selecionado */
+label:has(input[type="radio"]:checked) {
+    border-color: var(--lumo-primary);
+    background-color: var(--lumo-accent-light);
+    box-shadow: 0 0 0 1px var(--lumo-primary);
+}
+
+/* =========================================
+   BOTÃO DE SUBMIT
+   ========================================= */
+button[type="submit"] {
+    background: var(--lumo-primary);
+    color: #ffffff;
+    font-size: 1rem;
+    font-weight: 600;
+    border: none;
+    border-radius: var(--radius-md);
+    padding: 1rem;
+    margin-top: 2rem;
+    cursor: pointer;
+    transition: var(--transition);
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2);
+}
+
+button[type="submit"]:hover {
+    background: var(--lumo-primary-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(79, 70, 229, 0.3);
+}
+
+button[type="submit"]:active {
+    transform: translateY(0);
+}
+
+/* =========================================
+   RESPONSIVIDADE
+   ========================================= */
+@media (max-width: 480px) {
+    main {
+        padding: 1.5rem;
+    }
+    
+    h1 {
+        font-size: 1.25rem;
+    }
+}

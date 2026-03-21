@@ -120,7 +120,6 @@ CREATE TABLE IF NOT EXISTS investimentos (
     
     valor_cota REAL NOT NULL,
     
-    imagem TEXT,
     risco TEXT DEFAULT 'medio',
     
     ativo INTEGER DEFAULT 1,

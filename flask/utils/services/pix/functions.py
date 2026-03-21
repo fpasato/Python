@@ -55,7 +55,12 @@ def register_key(key, conta_id):
     cursor = conn.cursor()
     with conn:
         cursor.execute("INSERT INTO chaves_pix (conta_id, tipo, chave) VALUES (?, 'aleatoria', ?)", (conta_id, key))
-    return {"success": True, "message": "Chave registrada com sucesso"}
+        # Busca a data/hora que foi registrada
+        cursor.execute("SELECT criada_em FROM chaves_pix WHERE chave = ?", (key,))
+        result = cursor.fetchone()
+        data_registro = result[0] if result else None
+        print(f"DEBUG: Chave {key} registrada em: {data_registro}")
+    return {"success": True, "message": "Chave registrada com sucesso", "data_registro": data_registro}
 
 # Deletar chave aleatória pelo ID
 def delete_key_by_id(key_id):

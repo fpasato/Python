@@ -1,0 +1,52 @@
+<link rel="stylesheet" href="{{ url_for('static', filename='css/emprego/style.css') }}">
+
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/emprego/style.css') }}">
+<main>
+    <h1>🧩 ✨ PERGUNTAS COM IDENTIDADE LUMO</h1>
+    
+    <form action="/escolher-emprego" method="post">
+
+        <h2>🧩 1. Caminho iluminado</h2>
+        <p>Você está em um caminho escuro. O que faz?</p>
+        <label><input type="radio" name="q1" value="seguro" required> A) Segue pela luz mais segura</label>
+        <label><input type="radio" name="q1" value="equilibrado"> B) Anda explorando com cuidado</label>
+        <label><input type="radio" name="q1" value="arriscado"> C) Vai direto sem pensar muito</label>
+
+        <h2>🧩 2. Dinheiro inesperado</h2>
+        <p>Você recebe um valor inesperado. O que faz?</p>
+        <label><input type="radio" name="q2" value="seguro" required> A) Guarda para o futuro</label>
+        <label><input type="radio" name="q2" value="equilibrado"> B) Usa uma parte e guarda outra</label>
+        <label><input type="radio" name="q2" value="arriscado"> C) Gasta com algo imediato</label>
+
+        <h2>🧩 3. Decisão financeira</h2>
+        <p>Você precisa tomar uma decisão importante:</p>
+        <label><input type="radio" name="q3" value="seguro" required> A) Escolhe a opção mais segura</label>
+        <label><input type="radio" name="q3" value="equilibrado"> B) Analisa antes de decidir</label>
+        <label><input type="radio" name="q3" value="arriscado"> C) Decide rápido e assume o risco</label>
+
+        <h2>🧩 4. Futuro</h2>
+        <p>Você pensa no seu futuro financeiro como:</p>
+        <label><input type="radio" name="q4" value="seguro" required> A) Algo que precisa ser construído com cuidado</label>
+        <label><input type="radio" name="q4" value="equilibrado"> B) Algo que vai evoluir com o tempo</label>
+        <label><input type="radio" name="q4" value="arriscado"> C) Algo incerto que depende da sorte</label>
+
+        <h2>🧩 5. Controle</h2>
+        <p>Você prefere:</p>
+        <label><input type="radio" name="q5" value="seguro" required> A) Ter controle total do seu dinheiro</label>
+        <label><input type="radio" name="q5" value="equilibrado"> B) Ter algum controle</label>
+        <label><input type="radio" name="q5" value="arriscado"> C) Não se preocupar muito com isso</label>
+
+        <h2>🧩 6. O propósito do Lumo</h2>
+        <p>O que mais faz sentido para você?</p>
+        <label><input type="radio" name="q6" value="seguro" required> A) Segurança e crescimento consistente</label>
+        <label><input type="radio" name="q6" value="equilibrado"> B) Crescer aproveitando oportunidades</label>
+        <label><input type="radio" name="q6" value="arriscado"> C) Buscar ganhos rápidos</label>
+
+        <button type="submit">Descobrir meu perfil</button>
+    </form>
+</main>
+
+{% endblock %}
+

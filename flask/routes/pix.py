@@ -40,6 +40,11 @@ def pix():
         popup_message = "Nenhuma chave encontrada"
         popup_type = "error"
     
+    # Se não houver dados do destinatário na sessão, limpa a aba ativa (volta para padrão)
+    if not session.get('destinatario_nome'):
+        session.pop('active_tab', None)
+
+    
     return render_template(
         "pix/index.html", 
         keys=keys,
@@ -135,11 +140,19 @@ def transferir():
         result = get_key_by_value(chave_destino)
 
         if result["success"]:
+            
+            #verifica se a chave é da mesma conta
+            if result["data"]["conta_id"] == session['user_info']['conta_id']:
+                session['popup_message'] = "Não é possível transferir para a mesma conta"
+                session['popup_type'] = "error"
+                session['active_tab'] = 'transferir'
+                return redirect(url_for('pix.pix'))
+            
             session['destinatario_nome'] = result["data"]["nome"]
             session['destinatario_cpf'] = mask_cpf(result["data"]["cpf"])
             session['destinatario_conta_id'] = result["data"]["conta_id"]
             session['destinatario_chave'] = chave_destino
-            session['destinatario_tipo_chave'] = result["data"]["tipo_chave"]  # NOVO
+            session['destinatario_tipo_chave'] = result["data"]["tipo_chave"] 
             session['destinatario_valor'] = valor
             session['active_tab'] = 'transferir'
             return redirect(url_for('pix.pix'))
@@ -148,6 +161,7 @@ def transferir():
             session['popup_type'] = "error"
             session['active_tab'] = 'transferir'
             return redirect(url_for('pix.pix'))
+        
     elif request.form.get("action") == "pagar":
         conta_origem = session['user_info']['conta_id']
         conta_destino = session.get('destinatario_conta_id')

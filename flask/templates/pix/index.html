@@ -7,7 +7,7 @@
 <div class="pix-wrapper">
     <div class="app-container">
         <header class="header-pix">
-            <h1>Lumo <span style="color: var(--primary)">Digital</span></h1>
+            <h1>Lumo <span>Digital</span></h1>
         </header>
 
         <div class="pix-balance">
@@ -16,11 +16,8 @@
         </div>
 
         <div class="tabs-wrapper">
-            <input type="radio" name="pix-tabs" id="tab1" {% if session.get('active_tab') !='transferir' %}checked{%
-                endif %}>
-
-            <input type="radio" name="pix-tabs" id="tab2" {% if session.get('active_tab')=='transferir' %}checked{%
-                endif %}>
+            <input type="radio" name="pix-tabs" id="tab1" {% if session.get('active_tab') != 'transferir' %}checked{% endif %}>
+            <input type="radio" name="pix-tabs" id="tab2" {% if session.get('active_tab') == 'transferir' %}checked{% endif %}>
 
             <div class="tabs-nav">
                 <label for="tab1" class="tab-label">Gerenciar Chaves</label>
@@ -38,15 +35,15 @@
                                         <tr>
                                             <th>Tipo</th>
                                             <th>Chave</th>
-                                            <th style="text-align: right;">Ação</th>
+                                            <th>Ação</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         {% for key in keys %}
                                         <tr>
                                             <td><span class="type-badge">{{ key[2] }}</span></td>
-                                            <td style="color: var(--text-muted)">{{ key[3] }}</td>
-                                            <td style="text-align: right;">
+                                            <td>{{ key[3] }}</td>
+                                            <td>
                                                 {% if key[2] == 'aleatoria' %}
                                                 <a href="{{ url_for('pix.exclude_key', key_id=key[0]) }}"
                                                     class="btn-danger-link">Remover</a>
@@ -59,7 +56,7 @@
                             </div>
                         </div>
 
-                        <div class="card" style="align-self: start;">
+                        <div class="card">
                             <h2>Nova Chave</h2>
                             <button type="button" class="btn-primary btn-ghost" onclick="generateKey()">
                                 Gerar Aleatória
@@ -128,15 +125,14 @@
 
                             <!-- botão cancelar -->
                             <form method="POST" action="/pix/cancelar">
-                                <button type="submit" class="btn-secondary" style="margin-top:10px;">
+                                <button type="submit" class="btn-secondary">
                                     Cancelar
                                 </button>
                             </form>
                         </div>
                         {% endif %}
 
-                        <p class="security-note"
-                            style="text-align:center; margin-top:20px; font-size:0.75rem; color:var(--text-muted);">
+                        <p class="security-note">
                             🔒 Transação protegida pelo Lumo Digital
                         </p>
                     </div>
