@@ -1,6 +1,5 @@
 from flask import Flask, redirect, session
-import os
-from utils.services.banco.investimento import start_scheduler
+from utils.auto import start_scheduler
 
 from routes.home import home_bp
 from routes.login import login_bp  
@@ -12,6 +11,8 @@ from routes.pix import pix_bp
 from routes.cards import cards_bp
 from routes.investimento import investimento_bp
 from routes.emprego import emprego_bp
+from routes.faturas import faturas_bp  
+
 
 
 
@@ -29,6 +30,7 @@ app.register_blueprint(pix_bp)
 app.register_blueprint(cards_bp)
 app.register_blueprint(investimento_bp)
 app.register_blueprint(emprego_bp)
+app.register_blueprint(faturas_bp)
 
 
 @app.route("/")
@@ -43,7 +45,6 @@ def logout():
 
 
 if __name__ == "__main__":
-    # Start scheduler only when running the app directly
     if not getattr(app, "_scheduler_started", False):
         start_scheduler()
         app._scheduler_started = True

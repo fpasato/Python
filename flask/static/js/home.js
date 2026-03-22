@@ -105,3 +105,54 @@
 
   createIndicators();
   manageAutoRotation(); // Inicia o ciclo
+
+
+// 🔥 CARREGAR SALARIO AO CARREGAR PÁGINA
+async function carregarSaldoInicial() {
+    try {
+        const res = await fetch("/home/get-saldo");
+        const data = await res.json();
+        
+        if (data.saldo !== undefined) {
+            console.log("Saldo inicial carregado:", data.saldo);
+            
+            // Atualiza todos os elementos que mostram saldo
+            const elementos = document.querySelectorAll('[data-saldo]');
+            elementos.forEach(el => {
+                if (el) {
+                    el.textContent = `R$ ${parseFloat(data.saldo).toFixed(2)}`;
+                }
+            });
+        }
+    } catch (error) {
+        console.error("Erro ao carregar saldo:", error);
+    }
+}
+
+async function verificarSalario() {
+    const res = await fetch("/home/verificar-salario");
+    const data = await res.json();
+
+    console.log("verificando...", data); // DEBUG
+
+    if (data.novo) {
+        showPopup(`Salário de R$${data.valor.toFixed(2)} foi creditado`, "success");
+        
+        // 🔥 RECARRREGA SALARIO NA SESSÃO
+        await fetch("/home/recarregar-saldo")
+            .then(res => res.json())
+            .then(data => {
+                if (data.saldo !== undefined) {
+                    console.log("Saldo recarregado:", data.saldo);
+                    // Atualiza o saldo na tela (se tiver elemento)
+                    const saldoElement = document.querySelector('[data-saldo]');
+                    if (saldoElement) {
+                        saldoElement.textContent = `R$ ${parseFloat(data.saldo).toFixed(2)}`;
+                    }
+                }
+            });
+    }
+}
+
+verificarSalario(); // 🔥 ESSENCIAL - chama na primeira vez
+setInterval(verificarSalario, 5000); // a cada 5 segundos

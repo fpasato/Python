@@ -8,7 +8,7 @@ def register():
     if request.method == "POST":
         result = register_account(request.form)
         if result["success"]:
-            return render_template("login/index.html", popup_message=result["message"], popup_type="success")
+            return render_template("empregos/index.html", popup_message=result["message"], popup_type="success")
         else:
             return render_template(
                 "register/index.html",

@@ -49,6 +49,28 @@ def login():
                 (account[0],)
             )
             conta_result = cursor.fetchone()
+            
+        resultado = session.pop("resultado_emprego", None)
+
+        if resultado:
+            salario = resultado["salario"]
+
+            cursor.execute("""
+                UPDATE contas
+                SET salario = ?
+                WHERE id = ?
+            """, (salario, conta_result[0]))
+
+            conn.commit()
+
+        # 🔒 garante salário mínimo
+        cursor.execute("""
+            UPDATE contas
+            SET salario = 1518
+            WHERE id = ? AND (salario IS NULL OR salario <= 0)
+        """, (conta_result[0],))
+
+        conn.commit()
 
         # Session
         session['user_info'] = {

@@ -4,9 +4,7 @@
 from datetime import datetime, timedelta
 import random
 import sqlite3
-from flask import session
 from utils.validators import get_db
-from apscheduler.schedulers.background import BackgroundScheduler
 
 #carrega carteira
 def carregar_carteira(conta_id):
@@ -344,11 +342,3 @@ def atualizar_ativos():
     print(f"[{datetime.now()}] Ativos atualizados")
     
     
-def start_scheduler():
-    scheduler = BackgroundScheduler()
-    scheduler.add_job(
-        atualizar_ativos,
-        'interval',
-        minutes=30
-    )
-    scheduler.start()

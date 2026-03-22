@@ -1,31 +1,14 @@
-<style>
-.popup {
-    position: fixed;
-    top: 10%;              /* ligeiramente acima do centro */
-    left: 50%;
-    transform: translate(-50%, -50%) scale(0.8); /* popup menor */
-    padding: 2rem;
-    border-radius: 8px;
-    color: white;
-    font-weight: bold;
-    text-align: center;
-    z-index: 9999;
-    opacity: 0;            /* invisível no início */
-    pointer-events: none;  /* não interage quando invisível */
-    transition: transform 0.4s ease, opacity 0.4s ease; /* animação */
-}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/components/popup.css') }}">
 
-.popup.show {
-    opacity: 1;
-    transform: translate(-50%, -50%) scale(1); /* cresce para tamanho normal */
-    pointer-events: auto; /* permite interação enquanto visível */
-}
-
-.popup.success { background-color: #4CAF50; }
-.popup.error   { background-color: #f44336; }
-</style>
-
-<div id="popup" class="popup"></div>
+<div id="popup" class="popup">
+    <div class="popup-content">
+        <div class="info">
+            <strong id="popup-title" style="display: block; font-size: 1.1rem;"></strong>
+            <span id="popup-text" style="font-weight: 400; font-size: 0.9rem;"></span>
+        </div>
+        <span class="close-btn" onclick="closePopup()">&times;</span>
+    </div>
+</div>
 
 <script src="{{ url_for('static', filename='js/popup.js') }}"></script>
 

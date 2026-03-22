@@ -142,6 +142,30 @@ CREATE TABLE IF NOT EXISTS historico_precos (
 """)
 
 cursor.execute("""
+CREATE TABLE IF NOT EXISTS faturas (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    
+    conta_id INTEGER NOT NULL,
+    
+    tipo TEXT NOT NULL, -- luz, agua, internet, aluguel, etc
+    
+    valor REAL NOT NULL,
+    
+    status TEXT DEFAULT 'pendente', -- pendente, pago, vencido
+    
+    data_vencimento DATETIME NOT NULL,
+    
+    juros REAL DEFAULT 0,
+    
+    descricao TEXT,
+    
+    criado_em DATETIME DEFAULT CURRENT_TIMESTAMP,
+    
+    FOREIGN KEY (conta_id) REFERENCES contas(id)
+)
+""")
+
+cursor.execute("""
 CREATE TABLE IF NOT EXISTS carteira_investimentos (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     

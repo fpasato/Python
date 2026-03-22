@@ -1,29 +1,17 @@
-/* =========================================
-   VARIÁVEIS DE COR E ESTILO
-   ========================================= */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
 :root {
-    /* Fundo suave, sem ser um branco ofuscante */
-    --bg-body: #eef2f6; 
-    --bg-gradient: linear-gradient(135deg, #eef2f6 0%, #e0e5ec 100%);
-    
-    /* Cores Lumo (ajuste conforme a paleta oficial do seu banco) */
-    --lumo-primary: #4f46e5; /* Azul/Indigo moderno */
-    --lumo-primary-hover: #4338ca;
-    --lumo-accent-light: rgba(79, 70, 229, 0.08);
-    
-    /* Tipografia e Textos */
-    --text-main: #1e293b; /* Cinza chumbo escuro, mais suave que preto puro */
+    --bg: #f8fafc;
+    --card: #ffffff;
+    --primary: #0f172a; /* Azul quase preto, muito moderno */
+    --accent: #2563eb;
+    --text-main: #1e293b;
     --text-muted: #64748b;
-    
-    /* Estrutura */
-    --radius-lg: 20px;
-    --radius-md: 12px;
-    --transition: all 0.3s ease;
+    --border: #e2e8f0;
+    --radius: 12px;
+    --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
 }
 
-/* =========================================
-   RESET BÁSICO E BODY
-   ========================================= */
 * {
     box-sizing: border-box;
     margin: 0;
@@ -31,141 +19,155 @@
 }
 
 body {
-    background: var(--bg-gradient);
+    background-color: #c3d9ee;
+    font-family: 'Inter', sans-serif;
     color: var(--text-main);
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    min-height: 100vh;
+    line-height: 1.6;
     display: flex;
     justify-content: center;
-    align-items: flex-start;
-    padding: 2rem 1rem;
-    overflow-y: auto;
+    /* CORREÇÃO AQUI: flex-start garante que o topo nunca suma */
+    align-items: flex-start; 
+    padding: 4rem 1rem;
+    min-height: 100vh;
 }
 
-/* =========================================
-   CONTÊINER PRINCIPAL (Efeito Glass/Premium)
-   ========================================= */
-main {
-    background: rgba(255, 255, 255, 0.65);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(255, 255, 255, 0.8);
-    border-radius: var(--radius-lg);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03), 0 1px 3px rgba(0, 0, 0, 0.02);
+.main-container {
     width: 100%;
-    max-width: 600px;
-    padding: 2.5rem;
+    max-width: 640px;
+    background: var(--card);
+    padding: 3rem;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
 }
 
-/* =========================================
-   TIPOGRAFIA
-   ========================================= */
-h1 {
+/* Intro Section */
+.intro-header {
+    margin-bottom: 3rem;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 2rem;
+}
+
+.intro-header h1 {
     font-size: 1.5rem;
-    font-weight: 700;
-    text-align: center;
-    margin-bottom: 2rem;
-    color: var(--lumo-primary);
-    letter-spacing: -0.5px;
+    font-weight: 800;
+    color: var(--primary);
+    margin-bottom: 1rem;
+    letter-spacing: -0.025em;
+    text-transform: uppercase;
 }
 
-h2 {
-    font-size: 1.1rem;
-    font-weight: 600;
-    margin-top: 1.8rem;
-    margin-bottom: 0.5rem;
-    color: var(--text-main);
-}
-
-p {
+.intro-header p {
     font-size: 0.95rem;
     color: var(--text-muted);
-    margin-bottom: 1rem;
+    margin-bottom: 0.75rem;
 }
 
-/* =========================================
-   ESTILIZAÇÃO DO FORMULÁRIO E RADIOS
-   ========================================= */
-form {
+.badge-info {
+    display: inline-block;
+    background: #f1f5f9;
+    color: var(--text-main);
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-top: 0.5rem;
+}
+
+/* Perguntas */
+.pergunta-form {
     display: flex;
     flex-direction: column;
+    gap: 2.5rem;
 }
 
-/* Transformando os labels em cards clicáveis */
+.pergunta-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--primary);
+    margin-bottom: 0.5rem;
+}
+
+.pergunta-text {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin-bottom: 1.25rem;
+}
+
+.options-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+/* Opções (Labels) */
 label {
     display: flex;
     align-items: center;
-    background: #ffffff;
-    border: 1px solid #e2e8f0;
-    border-radius: var(--radius-md);
-    padding: 1rem 1.2rem;
-    margin-bottom: 0.75rem;
+    padding: 1rem 1.25rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: var(--card);
     font-size: 0.95rem;
     font-weight: 500;
-    color: var(--text-main);
-    cursor: pointer;
-    transition: var(--transition);
 }
 
-/* Efeito Hover nos cards de resposta */
 label:hover {
-    border-color: #cbd5e1;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-    transform: translateY(-1px);
+    border-color: var(--accent);
+    background-color: #f9fafb;
 }
 
-/* Deixando o input do radio com a cor da marca */
+label.checked {
+    border-color: var(--accent);
+    background-color: #eff6ff;
+    color: var(--accent);
+    box-shadow: 0 0 0 1px var(--accent);
+}
+
+/* Radio Original */
 input[type="radio"] {
-    accent-color: var(--lumo-primary);
-    width: 1.1rem;
-    height: 1.1rem;
-    margin-right: 0.8rem;
-    cursor: pointer;
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border: 2px solid var(--border);
+    border-radius: 50%;
+    margin-right: 12px;
+    outline: none;
+    transition: all 0.2s;
+    background: white;
 }
 
-/* CSS Moderno: Destaca o card inteiro quando o radio é selecionado */
-label:has(input[type="radio"]:checked) {
-    border-color: var(--lumo-primary);
-    background-color: var(--lumo-accent-light);
-    box-shadow: 0 0 0 1px var(--lumo-primary);
+input[type="radio"]:checked {
+    border: 5px solid var(--accent);
 }
 
-/* =========================================
-   BOTÃO DE SUBMIT
-   ========================================= */
+/* Botão */
 button[type="submit"] {
-    background: var(--lumo-primary);
-    color: #ffffff;
+    width: 100%;
+    background-color: var(--primary);
+    color: white;
+    border: none;
+    padding: 1.25rem;
+    border-radius: var(--radius);
     font-size: 1rem;
     font-weight: 600;
-    border: none;
-    border-radius: var(--radius-md);
-    padding: 1rem;
-    margin-top: 2rem;
     cursor: pointer;
-    transition: var(--transition);
-    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2);
+    transition: transform 0.1s, background 0.2s;
+    margin-top: 1rem;
 }
 
 button[type="submit"]:hover {
-    background: var(--lumo-primary-hover);
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(79, 70, 229, 0.3);
+    background-color: #1e293b;
+    transform: translateY(-1px);
 }
 
 button[type="submit"]:active {
     transform: translateY(0);
 }
 
-/* =========================================
-   RESPONSIVIDADE
-   ========================================= */
 @media (max-width: 480px) {
-    main {
-        padding: 1.5rem;
-    }
-    
-    h1 {
-        font-size: 1.25rem;
-    }
+    .main-container { padding: 1.5rem; }
+    body { padding: 1.5rem 1rem; }
 }

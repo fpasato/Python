@@ -1,0 +1,157 @@
+/* 1. Root & Tokens */
+:root {
+    --primary-color: #0066ff; /* Azul Bancário Moderno */
+    --primary-hover: #0052cc;
+    --bg-color: #f8f9fa;
+    --surface-color: #ffffff;
+    --text-main: #1a1d23;
+    --text-muted: #64748b;
+    --border-color: #e2e8f0;
+    --success-color: #10b981;
+    --error-color: #ef4444;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.1);
+    --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+    --radius: 8px;
+    --transition: all 0.3s ease;
+}
+
+/* 2. Reset & Tipografia */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-main);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* 3. Layout */
+.faturas-wrapper {
+    padding: 2rem 1rem;
+    min-height: 100vh;
+}
+
+.app-container {
+    max-width: 1280px;
+    margin: 0 auto;
+}
+
+/* 4. Hierarquia de Títulos */
+h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 2rem;
+    color: var(--text-main);
+}
+
+.fatura-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    color: var(--text-muted);
+}
+
+/* 5. Cards (Fatura Container) */
+.fatura-container {
+    background-color: var(--surface-color);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-sm);
+    margin-bottom: 1.5rem;
+    transition: var(--transition);
+    overflow-x: auto; /* Garante scroll em tabelas no mobile */
+}
+
+.fatura-container:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-md);
+}
+
+/* 6. Tabelas */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 1rem;
+    min-width: 800px; /* Evita quebra de layout em telas médias */
+}
+
+th {
+    text-align: left;
+    background-color: #f1f5f9;
+    padding: 1rem;
+    font-weight: 700;
+    color: var(--text-main);
+    border-bottom: 2px solid var(--border-color);
+}
+
+td {
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-color);
+    vertical-align: middle;
+}
+
+tr:hover td {
+    background-color: #f8fafc;
+}
+
+/* 7. Botões */
+.btn-pagar {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 0.625rem 1.25rem;
+    border-radius: var(--radius);
+    font-weight: 600;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: var(--transition);
+    width: 100%;
+    text-align: center;
+}
+
+.btn-pagar:hover {
+    background-color: var(--primary-hover);
+    box-shadow: 0 2px 8px rgba(0, 102, 255, 0.3);
+}
+
+.btn-pagar:focus {
+    outline: 3px solid rgba(0, 102, 255, 0.4);
+    outline-offset: 2px;
+}
+
+/* 8. Estilização de Status (Baseado na regra de alertas) */
+/* Se você puder adicionar classes dinâmicas no seu Jinja2 futuramente */
+td:contains("Pendente") {
+    color: var(--error-color);
+    font-weight: 600;
+}
+
+/* 9. Responsividade (Mobile First) */
+@media (max-width: 768px) {
+    h1 {
+        font-size: 1.75rem;
+    }
+    
+    .fatura-container {
+        padding: 1rem;
+    }
+
+    /* Em telas muito pequenas, a tabela pode ser scrollável */
+    .fatura-container {
+        border-radius: 4px;
+    }
+}
+
+/* 10. Acessibilidade Extra */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        transition: none !important;
+        animation: none !important;
+    }
+}

@@ -7,12 +7,12 @@
 <div class="pix-wrapper">
     <div class="app-container">
         <header class="header-pix">
-            <h1>Lumo <span>Digital</span></h1>
+            <h1>Lumo <span>PIX</span></h1>
         </header>
 
         <div class="pix-balance">
             <span>Saldo em conta</span>
-            <h2>R$ {{ "{:,.2f}".format(session['user_info']['saldo'])}}</h2>
+            <h2><span data-saldo>R$ {{ "{:,.2f}".format(session['user_info']['saldo']) }}</span></h2>
         </div>
 
         <div class="tabs-wrapper">
@@ -142,49 +142,9 @@
     </div>
 </div>
 <script>
-    async function generateKey() {
-        try {
-            const response = await fetch("/pix/generate_random_key", {
-                method: "POST"
-            });
-
-            const data = await response.json();
-
-            if (data.success) {
-                // coloca chave no input
-                document.querySelector("input[name='chave']").value = data.chave;
-
-                // habilita botão
-                document.getElementById("btn-confirmar").disabled = false;
-            } else {
-                alert("Erro ao gerar chave");
-            }
-
-        } catch (error) {
-            console.error(error);
-            alert("Erro na requisição");
-        }
-    }
-    
-    function formatarMoeda(input) {
-        let valor = input.value.replace(/\D/g, '');
-        
-        if (valor === '') {
-            document.getElementById('valor_real_pix').value = '';
-            return;
-        }
-        
-        // Converte para centavos e formata
-        valor = parseInt(valor) / 100;
-        valor = valor.toFixed(2).replace('.', ',');
-        valor = valor.replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1.');
-        
-        input.value = valor;
-        
-        // Atualiza campo hidden com valor numérico (substitui vírgula por ponto)
-        document.getElementById('valor_real_pix').value = valor.replace(/\./g, '').replace(',', '.');
-    }
+  
 </script>
 
+<script src="{{ url_for('static', filename='js/pix.js') }}"></script>
 {% include "components/popup.html" %}
 {% endblock %}

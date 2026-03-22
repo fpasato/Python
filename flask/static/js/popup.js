@@ -1,10 +1,29 @@
-function showPopup(message, type) {
-    const popup = document.getElementById("popup");
-    popup.textContent = message;
-    popup.className = "popup " + type + " show"; // mostra com animação
+function showPopup(message, type = 'success', title = '') {
+  const popup = document.getElementById('popup');
+  const titleEl = document.getElementById('popup-title');
+  const textEl = document.getElementById('popup-text');
 
-    // fade out após 3 segundos
-    setTimeout(() => {
-        popup.classList.remove("show"); // animação de saída
-    }, 3000);
+  titleEl.innerText = title || (type === 'success' ? 'Sucesso!' : 'Ops!');
+  textEl.innerText = message;
+
+  // Reseta classes e aplica a nova
+  popup.className = `popup show ${type}`;
+
+  // Auto-hide após 5 segundos
+  setTimeout(() => {
+    closePopup();
+  }, 5000);
 }
+
+function closePopup() {
+    const popup = document.getElementById('popup');
+    
+    // Adiciona a classe que dispara o slide lateral
+    popup.classList.add('hide');
+
+    // Espera 600ms (tempo da animação CSS) para resetar o estado
+    setTimeout(() => {
+        popup.classList.remove('show', 'hide');
+    }, 600); 
+}
+
