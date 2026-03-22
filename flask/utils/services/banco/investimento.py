@@ -5,6 +5,10 @@ from datetime import datetime, timedelta, timezone
 import random
 import sqlite3
 from utils.validators import get_db
+from threading import Lock
+
+notificacoes_pendentes = {}     
+notificacoes_lock = Lock()
 
 #carrega carteira
 def carregar_carteira(conta_id):
@@ -328,22 +332,25 @@ def atualizar_ativos():
     for ativo in ativos:
         valor = ativo["valor_cota"]
         risco = ativo["risco"]
+        
+        # tendência leve
+        tendencia = random.uniform(-0.001, 0.002)
 
-        # Aumenta a volatilidade (variação percentual) conforme risco
+        # ruído (volatilidade)
         if risco == "baixo":
-            variacao = random.uniform(-0.005, 0.02) # -0.5% a 2%
+            ruido = random.uniform(-0.001, 0.002)
         elif risco == "medio":
-            variacao = random.uniform(-0.01, 0.05) # -1% a 5%
-        else:  # alto
-            variacao = random.uniform(-0.10, 0.10) # -10% a 10%
+            ruido = random.uniform(-0.002, 0.003)
+        else:
+            ruido = random.uniform(-0.004, 0.006)
 
+        # retorno à média (corrigido)
+        preco_base = 100
+        retorno = (preco_base - valor) * 0.0003
+
+        variacao = tendencia + ruido + retorno
 
         novo_valor = round(valor * (1 + variacao), 2)
-        
-        print(f"Antes: ativo {ativo['id']} = R$ {valor}")
-        novo_valor = round(valor * (1 + variacao), 2)
-        print(f"Depois: R$ {novo_valor}")
-        
     
         if novo_valor <= 1:
             print(f"Ativo {ativo['id']} atingiu R$1 - removendo da carteira sem reembolso")
@@ -388,27 +395,55 @@ def busca_investimento_temporarios():
 
 
 def processar_investimentos_expirados():
+    expirados = busca_investimento_temporarios()
     conn = get_db()
-    conn.row_factory = sqlite3.Row
-
-    # Busca todos os temporários para debug
-    todos = conn.execute("SELECT * FROM investimentos_temporarios").fetchall()
-    print(f"[{datetime.utcnow()}] Total registros: {len(todos)}")
-
-    # Busca apenas os expirados
-    expirados = conn.execute("""
-        SELECT * FROM investimentos_temporarios
-        WHERE expira_em <= datetime('now', 'utc')
-    """).fetchall()
-    print(f"[{datetime.utcnow()}] Expirados encontrados: {len(expirados)}")
 
     for inv in expirados:
-        print(f"Expirado: id={inv['id']}, expira_em={inv['expira_em']}, agora_utc={datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')}")
-        sucesso = sell_investment(inv['conta_id'], inv['investimento_id'], inv['quantidade'])
+        conta_id = inv["conta_id"]
+        investimento_id = inv["investimento_id"]
+        quantidade = inv["quantidade"]
+        preco_medio = inv["preco_medio"]   # já está na tabela
+        temp_id = inv["id"]
+
+        # Busca nome e preço atual do ativo
+        ativo = conn.execute(
+            "SELECT nome, valor_cota FROM investimentos WHERE id = ?", (investimento_id,)
+        ).fetchone()
+        if not ativo:
+            continue
+
+        preco_atual = ativo["valor_cota"]
+        valor_venda = quantidade * preco_atual
+        custo_total = quantidade * preco_medio
+        lucro = valor_venda - custo_total
+
+        sucesso = sell_investment(conta_id, investimento_id, quantidade)
+
         if sucesso:
-            conn.execute("DELETE FROM investimentos_temporarios WHERE id = ?", (inv['id'],))
+            conn.execute("DELETE FROM investimentos_temporarios WHERE id = ?", (temp_id,))
+            
+            # Prepara notificação estruturada
+            notificacao = {
+                'tipo': 'venda_automatica',
+                'nome': ativo['nome'],
+                'quantidade': quantidade,
+                'lucro': lucro,
+                'preco_venda': preco_atual,
+                'preco_medio': preco_medio
+            }
+            with notificacoes_lock:
+                notificacoes_pendentes.setdefault(conta_id, []).append(notificacao)
             conn.commit()
         else:
-            print(f"Falha ao vender investimento temporário {inv['id']}")
+            # Falha na venda – mantém registro
+            pass
 
     conn.close()
+    
+    
+    
+def _obter_nome_investimento(investimento_id, conn):
+    row = conn.execute(
+        "SELECT nome FROM investimentos WHERE id = ?", (investimento_id,)
+    ).fetchone()
+    return row["nome"] if row else f"#{investimento_id}"

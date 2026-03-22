@@ -8,7 +8,7 @@ def start_scheduler():
     scheduler = BackgroundScheduler()
 
     # Atualiza valores de investimento a cada 30 minutos
-    scheduler.add_job(atualizar_ativos, 'interval', minutes=30)
+    scheduler.add_job(atualizar_ativos, 'interval', seconds=5)
 
     # Paga salários a cada 30 minutos 
     scheduler.add_job(pagar_salarios, 'interval', seconds=5)

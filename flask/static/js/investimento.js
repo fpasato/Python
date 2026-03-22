@@ -285,20 +285,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const data = await res.json();
 
-            // Atualiza saldo
+            // 1. Atualiza saldo da conta
             saldoAtualEl.innerText = formatBRL(data.saldo || 0);
 
-            // Mapa de carteira (ID -> item)
+            // 2. Atualiza cards da carteira (investimentos do usuário)
             const carteira = Array.isArray(data.carteira) ? data.carteira : [];
             const carteiraPorId = new Map(carteira.map(item => [String(item.investimento_id), item]));
 
-            // Atualiza cards da carteira (sem remover, apenas atualiza)
             document.querySelectorAll('.invest-item-card').forEach(card => {
                 const investId = card.dataset.investimentoId ? String(card.dataset.investimentoId) : null;
                 if (!investId) return;
                 const item = carteiraPorId.get(investId);
                 if (!item) {
-                    // Se não está mais na carteira, remove o card
+                    // Se o ativo não está mais na carteira, remove o card
                     card.remove();
                     return;
                 }
@@ -314,9 +313,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (hiddenQtd) hiddenQtd.value = String(item.quantidade);
             });
 
-            // Atualiza cards de explorar
+            // 3. Atualiza cards de ativos disponíveis (explorar)
             const ativos = Array.isArray(data.ativos_disponiveis) ? data.ativos_disponiveis : [];
             const ativosPorId = new Map(ativos.map(item => [String(item.id), item]));
+
             document.querySelectorAll('.ativo-card').forEach(card => {
                 const ativoId = card.dataset.ativoId ? String(card.dataset.ativoId) : null;
                 if (!ativoId) return;
@@ -328,7 +328,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 card.dataset.risco = String(ativo.risco || '');
             });
 
-            // Se o modal está aberto, atualiza preço e informações do ativo atual
+            // 4. Se o modal está aberto, atualiza as informações do ativo atual
             if (modal.classList.contains('active') && currentInvestimentoId) {
                 const itemCarteira = carteiraPorId.get(String(currentInvestimentoId));
                 const ativo = ativosPorId.get(String(currentInvestimentoId));
@@ -349,9 +349,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     modalPrecoCota.innerText = formatBRL(currentPreco);
                     updateBuyTotal();
                     if (formVender.style.display === 'block') updateSellTotal();
-                    
-                    // Adiciona o ponto novo no gráfico existente empurrando o antigo pra fora
-                    adicionarPontoAoGrafico(currentPreco); 
+                    adicionarPontoAoGrafico(currentPreco);
                 }
 
                 if (qtdAtualizada !== null && qtdAtualizada !== currentQuantidadeCarteira) {
@@ -375,11 +373,31 @@ document.addEventListener('DOMContentLoaded', () => {
                     modalSaldoContaEl.innerText = formatBRL(data.saldo_conta);
                 }
             }
+
+            // 5. Exibir notificações de vendas automáticas (se houver)
+            if (data.notificacoes && data.notificacoes.length > 0) {
+                data.notificacoes.forEach(notif => {
+                    if (notif.tipo === 'venda_automatica') {
+                        const lucro = notif.lucro;
+                        const lucroFormatado = formatBRL(lucro);
+                        const mensagem = `${notif.quantidade} cota(s) do ativo ${notif.nome} foi vendida automaticamente. ${lucro >= 0 ? 'Lucro:' : 'Prejuízo:'} ${lucroFormatado}`;
+                        const tipo = lucro >= 0 ? 'success' : 'error';
+                        if (typeof showPopup === 'function') {
+                            showPopup(mensagem, tipo);
+                        }
+                    } else {
+                        // fallback para mensagens de texto simples (caso haja)
+                        if (typeof showPopup === 'function') {
+                            showPopup(notif, 'info');
+                        }
+                    }
+                });
+            }
         } catch (err) {
-            // silencia erros de polling
+            // Silencia erros de polling
+            console.warn('Erro no polling de atualização:', err);
         }
     };
-
     // ==================== Abrir modal a partir de card ====================
     const abrirModalPeloCard = async (e, card) => {
         if (e && (e.target.closest('form') || e.target.closest('button'))) return;

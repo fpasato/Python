@@ -1,8 +1,8 @@
-
 import sqlite3
 from flask import Blueprint, render_template, session, request, redirect, url_for, jsonify
 from utils.services.banco.investimento import (
-    carregar_carteira ,load_all_investiments, sell_investment, history_prices, buy_investment
+    carregar_carteira, load_all_investiments, sell_investment,
+    history_prices, buy_investment, notificacoes_pendentes, notificacoes_lock
 )
 from utils.validators import get_db
 
@@ -131,40 +131,43 @@ def vender():
 
 @investimento_bp.route("/investimento/atualizar-precos")
 def atualizar_precos():
-    """API única para retornar dados atualizados em tempo real."""
     if 'user_info' not in session:
         return jsonify({'error': 'Não autorizado'}), 401
-    
-    try:
-        # CORREÇÃO: No seu sistema a chave é 'conta_id'
-        conta_id = session['user_info'].get('conta_id')
-        
-        if not conta_id:
-            return jsonify({'error': 'Conta não encontrada na sessão'}), 401
 
-        # 1. Busca saldo atualizado do banco
+    try:
+        conta_id = session['user_info'].get('conta_id')
+        if not conta_id:
+            return jsonify({'error': 'Conta não encontrada'}), 401
+
+        # 1. Busca saldo
         conn = get_db()
         conn.row_factory = sqlite3.Row
         conta = conn.execute("SELECT saldo FROM contas WHERE id = ?", (conta_id,)).fetchone()
         saldo_atual = conta['saldo'] if conta else 0
         conn.close()
-        
-        # 2. Busca carteira e ativos usando suas funções de serviço
+
+        # 2. Busca carteira e ativos
         carteira_data = carregar_carteira(conta_id)
         carteira = carteira_data['investimentos'] if carteira_data else []
-        
+
         investimentos_data = load_all_investiments()
         investimentos_disponiveis = investimentos_data['investimentos']
-        
+
+        # 3. Busca notificações pendentes (e limpa)
+        with notificacoes_lock:
+            notificacoes = notificacoes_pendentes.pop(conta_id, [])
+
         return jsonify({
             'saldo': saldo_atual,
             'carteira': carteira,
-            'ativos_disponiveis': investimentos_disponiveis
+            'ativos_disponiveis': investimentos_disponiveis,
+            'notificacoes': notificacoes   
         })
-        
+
     except Exception as e:
         print(f"Erro na API de preços: {e}")
         return jsonify({'error': str(e)}), 500
+    
     
 @investimento_bp.route("/investimento/detalhes/<int:investimento_id>")
 def detalhes_investimento(investimento_id):
