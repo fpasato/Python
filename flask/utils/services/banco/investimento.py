@@ -1,7 +1,7 @@
 
 
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import random
 import sqlite3
 from utils.validators import get_db
@@ -146,7 +146,7 @@ def sell_investment(conta_id, investimento_id, quantidade=None):
     conn.close()
     return True
 
-def buy_investment(conta_id, investimento_id, quantidade):
+def buy_investment(conta_id, investimento_id, quantidade, tempo=None):
     conn = get_db()
     conn.row_factory = sqlite3.Row
     
@@ -159,16 +159,19 @@ def buy_investment(conta_id, investimento_id, quantidade):
     saldo_real = conta['saldo']
     ativo = load_investiment(investimento_id)
     
+    # tenta converter quantidade para int
     try:
         quantidade = int(quantidade)
     except (TypeError, ValueError):
         conn.close()
         return False
     
+    # se quantidade for menor ou igual a 0
     if quantidade <= 0:
         conn.close()
         return False
     
+    # se ativo não existir ou saldo insuficiente
     if not ativo or saldo_real < (ativo['valor_cota'] * quantidade):
         conn.close()
         return False
@@ -176,26 +179,50 @@ def buy_investment(conta_id, investimento_id, quantidade):
     valor_total = ativo['valor_cota'] * quantidade
 
     try:
-        # Verifica se já tem na carteira
-        investimento = conn.execute("SELECT quantidade, preco_medio FROM carteira_investimentos WHERE conta_id = ? AND investimento_id = ?", (conta_id, investimento_id)).fetchone()
+        investimento = conn.execute(
+            "SELECT quantidade, preco_medio FROM carteira_investimentos WHERE conta_id = ? AND investimento_id = ?",
+            (conta_id, investimento_id)
+        ).fetchone()
         
         if investimento:
             nova_qtd = investimento['quantidade'] + quantidade
             novo_pm = ((investimento['preco_medio'] * investimento['quantidade']) + valor_total) / nova_qtd
-            conn.execute("UPDATE carteira_investimentos SET quantidade = ?, preco_medio = ? WHERE conta_id = ? AND investimento_id = ?", (nova_qtd, novo_pm, conta_id, investimento_id))
+            conn.execute(
+                "UPDATE carteira_investimentos SET quantidade = ?, preco_medio = ? WHERE conta_id = ? AND investimento_id = ?",
+                (nova_qtd, novo_pm, conta_id, investimento_id)
+            )
         else:
-            # Para novas compras, o preco_medio deve ser o preço real da compra
-            conn.execute("INSERT INTO carteira_investimentos (conta_id, investimento_id, quantidade, preco_medio) VALUES (?, ?, ?, ?)", (conta_id, investimento_id, quantidade, valor_total / quantidade))
+            conn.execute(
+                "INSERT INTO carteira_investimentos (conta_id, investimento_id, quantidade, preco_medio) VALUES (?, ?, ?, ?)",
+                (conta_id, investimento_id, quantidade, valor_total / quantidade)
+            )
 
-        conn.execute("UPDATE contas SET saldo = saldo - ? WHERE id = ?", (valor_total, conta_id))
+        tempo = int(tempo) if tempo else None
+
+        if tempo:
+            expira_em = datetime.utcnow() + timedelta(seconds=tempo)
+            expira_em_str = expira_em.strftime('%Y-%m-%d %H:%M:%S')
+
+            conn.execute("""
+                INSERT INTO investimentos_temporarios 
+                (conta_id, investimento_id, quantidade, preco_medio, expira_em)
+                VALUES (?, ?, ?, ?, ?)
+            """, (conta_id, investimento_id, quantidade, valor_total / quantidade, expira_em_str))
+
+        conn.execute(
+            "UPDATE contas SET saldo = saldo - ? WHERE id = ?",
+            (valor_total, conta_id)
+        )
+
         conn.commit()
         return True
+
     except Exception as e:
         print(f"Erro na transação: {e}")
         return False
+
     finally:
         conn.close()
-
 
 
 
@@ -342,3 +369,46 @@ def atualizar_ativos():
     print(f"[{datetime.now()}] Ativos atualizados")
     
     
+
+
+# ----------------------------------------------------------------------
+
+def busca_investimento_temporarios():
+    """Retorna investimentos temporários já expirados."""
+    conn = get_db()
+    conn.row_factory = sqlite3.Row
+    expirados = conn.execute("""
+        SELECT * FROM investimentos_temporarios
+        WHERE expira_em <= datetime('now', 'utc')
+    """).fetchall()
+    conn.close()
+    return [dict(row) for row in expirados]
+
+
+
+
+def processar_investimentos_expirados():
+    conn = get_db()
+    conn.row_factory = sqlite3.Row
+
+    # Busca todos os temporários para debug
+    todos = conn.execute("SELECT * FROM investimentos_temporarios").fetchall()
+    print(f"[{datetime.utcnow()}] Total registros: {len(todos)}")
+
+    # Busca apenas os expirados
+    expirados = conn.execute("""
+        SELECT * FROM investimentos_temporarios
+        WHERE expira_em <= datetime('now', 'utc')
+    """).fetchall()
+    print(f"[{datetime.utcnow()}] Expirados encontrados: {len(expirados)}")
+
+    for inv in expirados:
+        print(f"Expirado: id={inv['id']}, expira_em={inv['expira_em']}, agora_utc={datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')}")
+        sucesso = sell_investment(inv['conta_id'], inv['investimento_id'], inv['quantidade'])
+        if sucesso:
+            conn.execute("DELETE FROM investimentos_temporarios WHERE id = ?", (inv['id'],))
+            conn.commit()
+        else:
+            print(f"Falha ao vender investimento temporário {inv['id']}")
+
+    conn.close()

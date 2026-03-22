@@ -10,42 +10,31 @@ investimento_bp = Blueprint('investimento', __name__)
 
 @investimento_bp.route("/investimento")
 def investimento():
-    """Página principal de investimentos."""
     if 'user_info' not in session:
         return redirect(url_for('auth.login'))
-    
+
+    conta_id = session['user_info']['conta_id']
+
+    # Recupera mensagem de popup da sessão e limpa
+    popup_message = session.pop('popup_message', None)
+    popup_type = session.pop('popup_type', None)
+
     investimentos_data = load_all_investiments()
     investimentos_disponiveis = investimentos_data['investimentos']
-    
-    print(investimentos_disponiveis)
-    
-    
-    conta_id = session['user_info']['conta_id']
+
     carteira_data = carregar_carteira(conta_id)
-    
-    # Busca saldo atualizado do banco
     conn = get_db()
     conn.row_factory = sqlite3.Row
     conta = conn.execute("SELECT saldo FROM contas WHERE id = ?", (conta_id,)).fetchone()
     saldo_atual = conta['saldo'] if conta else 0
     conn.close()
-    
+
     if not carteira_data or not carteira_data.get('investimentos'):
-        return render_template("investimento/index.html", 
-                               carteira=[], 
-                               valor_carteira=0, 
-                               saldo=saldo_atual,
-                               session=session,
-                               popup_message="Nenhuma carteira encontrada",
-                               popup_type="error",
-                               investimentos_disponiveis=investimentos_disponiveis
-                               )
-    
-    carteira = carteira_data['investimentos']
-    
-    
-    # Calcular valor total da carteira (usando saldo que já é o valor total)
-    valor_carteira = sum(item['saldo'] for item in carteira) if carteira else 0
+        carteira = []
+        valor_carteira = 0
+    else:
+        carteira = carteira_data['investimentos']
+        valor_carteira = sum(item['saldo'] for item in carteira) if carteira else 0
 
     return render_template(
         "investimento/index.html",
@@ -53,11 +42,11 @@ def investimento():
         investimentos_disponiveis=investimentos_disponiveis,
         valor_carteira=valor_carteira,
         saldo=saldo_atual,
-        session=session
+        session=session,
+        popup_message=popup_message,
+        popup_type=popup_type
     )
-
-
-    
+   
     
     
 @investimento_bp.route("/investimento/historico/<int:investimento_id>")
@@ -69,54 +58,75 @@ def historico(investimento_id):
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-
-
-
-
 @investimento_bp.route("/investimento/comprar", methods=["POST"])
 def comprar():
-    """Compra de ativos."""
     if 'user_info' not in session:
         return redirect(url_for('auth.login'))
-    
+
     conta_id = session['user_info']['conta_id']
     investimento_id = request.form.get('investimento_id')
     quantidade = int(request.form.get('quantidade', 1))
-    
-    success = buy_investment(conta_id, investimento_id, quantidade)
-    
-    # Recarrega dados atualizados
-    investimentos_data = load_all_investiments()
-    investimentos_disponiveis = investimentos_data['investimentos']
-    
-    carteira_data = carregar_carteira(conta_id)
-    carteira = carteira_data['investimentos'] if carteira_data else []
-    valor_carteira = sum(item['saldo'] for item in carteira) if carteira else 0
-    
-    # Busca saldo atualizado do banco
+    tempo = request.form.get('tempo')
+
+    success = buy_investment(conta_id, investimento_id, quantidade, tempo)
+
+    if success:
+        session['popup_message'] = "Compra realizada com sucesso!"
+        session['popup_type'] = "success"
+    else:
+        session['popup_message'] = "Saldo insuficiente ou investimento não encontrado."
+        session['popup_type'] = "error"
+
+    return redirect(url_for('investimento.investimento'))
+
+@investimento_bp.route("/investimento/vender", methods=["POST"])
+def vender():
+    if 'user_info' not in session:
+        return redirect(url_for('auth.login'))
+
+    conta_id = session['user_info']['conta_id']
+    investimento_id = request.form.get('investimento_id')
+
+    quantidade_raw = request.form.get("quantidade")
+    try:
+        quantidade = int(quantidade_raw) if quantidade_raw else None
+    except ValueError:
+        quantidade = None
+
+    if quantidade is None or quantidade <= 0:
+        session['popup_message'] = "Quantidade inválida para venda."
+        session['popup_type'] = "error"
+        return redirect(url_for('investimento.investimento'))
+
+    # Verifica quantidade na carteira
     conn = get_db()
     conn.row_factory = sqlite3.Row
-    conta = conn.execute("SELECT saldo FROM contas WHERE id = ?", (conta_id,)).fetchone()
-    saldo_atual = conta['saldo'] if conta else 0
+    carteira_qtd_row = conn.execute(
+        "SELECT quantidade FROM carteira_investimentos WHERE conta_id = ? AND investimento_id = ?",
+        (conta_id, investimento_id),
+    ).fetchone()
     conn.close()
-    
-    if success:
-        popup_message = "Compra realizada com sucesso!"
-        popup_type = "success"
-    else:
-        popup_message = "Saldo insuficiente ou investimento não encontrado."
-        popup_type = "error"
-    
-    return render_template("investimento/index.html", 
-                           carteira=carteira, 
-                           valor_carteira=valor_carteira, 
-                           saldo=saldo_atual,
-                           session=session,
-                           popup_message=popup_message,
-                           popup_type=popup_type,
-                           investimentos_disponiveis=investimentos_disponiveis
-                           )
 
+    qtd_na_carteira = carteira_qtd_row["quantidade"] if carteira_qtd_row else 0
+    if qtd_na_carteira <= 0:
+        session['popup_message'] = "Você não possui este ativo na carteira."
+        session['popup_type'] = "error"
+        return redirect(url_for('investimento.investimento'))
+    if quantidade > qtd_na_carteira:
+        session['popup_message'] = "Quantidade para venda excede a quantidade que você possui."
+        session['pop_type'] = "error"
+        return redirect(url_for('investimento.investimento'))
+
+    success = sell_investment(conta_id, investimento_id, quantidade)
+
+    if success:
+        session['popup_message'] = "Venda realizada com sucesso!"
+        session['popup_type'] = "success"
+    else:
+        session['popup_message'] = "Não foi possível vender."
+        session['popup_type'] = "error"
+
+    return redirect(url_for('investimento.investimento'))
 
 
 @investimento_bp.route("/investimento/atualizar-precos")
@@ -155,79 +165,6 @@ def atualizar_precos():
     except Exception as e:
         print(f"Erro na API de preços: {e}")
         return jsonify({'error': str(e)}), 500
-
-
-@investimento_bp.route("/investimento/vender", methods=["POST"])
-def vender():
-    """Venda de ativos."""
-    if 'user_info' not in session:
-        return redirect(url_for('auth.login'))
-    
-    conta_id = session['user_info']['conta_id']
-    investimento_id = request.form.get('investimento_id')
-
-    quantidade_raw = request.form.get("quantidade")
-    quantidade = None
-    if quantidade_raw not in (None, ""):
-        try:
-            quantidade = int(quantidade_raw)
-        except ValueError:
-            quantidade = None
-
-    # Validação e mensagem correta no popup
-    popup_message = ""
-    popup_type = "error"
-    if quantidade is None or quantidade <= 0:
-        popup_message = "Quantidade inválida para venda."
-        success = False
-    else:
-        conn = get_db()
-        conn.row_factory = sqlite3.Row
-        carteira_qtd_row = conn.execute(
-            "SELECT quantidade FROM carteira_investimentos WHERE conta_id = ? AND investimento_id = ?",
-            (conta_id, investimento_id),
-        ).fetchone()
-        conn.close()
-
-        qtd_na_carteira = carteira_qtd_row["quantidade"] if carteira_qtd_row else 0
-        if qtd_na_carteira <= 0:
-            popup_message = "Você não possui este ativo na carteira."
-            success = False
-        elif quantidade > qtd_na_carteira:
-            popup_message = "Quantidade para venda excede a quantidade que você possui."
-            success = False
-        else:
-            success = sell_investment(conta_id, investimento_id, quantidade)
-            popup_message = "Venda realizada com sucesso!" if success else "Não foi possível vender."
-    
-    # Recarrega dados atualizados
-    investimentos_data = load_all_investiments()
-    investimentos_disponiveis = investimentos_data['investimentos']
-    
-    carteira_data = carregar_carteira(conta_id)
-    carteira = carteira_data['investimentos'] if carteira_data else []
-    valor_carteira = sum(item['saldo'] for item in carteira) if carteira else 0
-    
-    # Busca saldo atualizado do banco
-    conn = get_db()
-    conn.row_factory = sqlite3.Row
-    conta = conn.execute("SELECT saldo FROM contas WHERE id = ?", (conta_id,)).fetchone()
-    saldo_atual = conta['saldo'] if conta else 0
-    conn.close()
-    
-    popup_type = "success" if success else "error"
-    
-    return render_template("investimento/index.html", 
-                           carteira=carteira, 
-                           valor_carteira=valor_carteira, 
-                           saldo=saldo_atual,
-                           session=session,
-                           popup_message=popup_message,
-                           popup_type=popup_type,
-                           investimentos_disponiveis=investimentos_disponiveis
-                           )
-    
-    
     
 @investimento_bp.route("/investimento/detalhes/<int:investimento_id>")
 def detalhes_investimento(investimento_id):

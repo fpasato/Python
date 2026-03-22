@@ -65,6 +65,7 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_cartao_unico
 ON cartoes(conta_id, tipo)
 """)
 
+
 # 💳 TRANSACOES DO CARTAO (CRÉDITO)
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS transacoes_cartao (

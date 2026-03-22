@@ -106,6 +106,14 @@
                         <label>Quantidade:</label>
                         <input type="number" name="quantidade" value="1" min="1" id="input-quantidade-compra" class="form-input"
                             style="width: 100%; padding: 8px;">
+                        <label>Tempo:</label>
+                        <select name="tempo" id="input-tempo-compra" class="form-input" style="width: 100%; padding: 8px;">
+                            <option value="">Indefinido</option>
+                            <option value="10">10 segundos</option>
+                            <option value="60">1 minuto</option>
+                            <option value="300">5 minutos</option>
+                            <option value="600">10 minutos</option>
+                        </select>
                     </div>
                     <div style="margin-bottom: 12px;">
                         <small>Valor para comprar:</small> <strong id="modal-total-compra">R$ 0,00</strong>
