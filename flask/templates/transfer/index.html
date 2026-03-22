@@ -11,7 +11,7 @@
         <div class="box-origin-info">
             <div class="box-money-info">
                 <h3>Saldo disponível</h3>
-                <h3>R$ <span data-saldo>{{ "{:,.2f}".format(session['user_info']['saldo']) }}</span></h3>
+                <h3><span data-saldo>{{ "{:,.2f}".format(session['user_info']['saldo']) }}</span></h3>
                 <form action="" method="POST" class="form-search">
                     <label for="conta-destino">BUSCAR DESTINATÁRIO</label>
                     <input type="text" id="conta-destino" name="conta-destino" placeholder="Digite o número da conta"

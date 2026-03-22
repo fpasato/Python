@@ -8,8 +8,14 @@
 <main class="faturas-wrapper">
     <div class="app-container">
         <h1>Faturas</h1>
+
+        <!-- Saldo Disponível -->
+        <div id="saldo-atual" class="saldo-card">
+            <span>Saldo Disponível: R$ {{ "{:,.2f}".format(session['user_info']['saldo']) }}</span>
+            <button class="btn-pagar" id="btn-pagar-todas">Pagar Todas</button>
+        </div>
         <div class="faturas-list">
-            
+
             {% if faturas %}
             <h2 class="fatura-title">Você tem Faturas Pendentes</h2>
             {% for fatura in faturas %}
@@ -31,7 +37,9 @@
                             <td>{{ fatura.tipo }}</td>
                             <td>R$ {{ "%.2f"|format(fatura.valor) }}</td>
                             <td>{{ fatura.status }}</td>
-                            <td>{{ fatura.data_vencimento[:10].split('-')[2] }}/{{ fatura.data_vencimento[:10].split('-')[1] }}/{{ fatura.data_vencimento[:10].split('-')[0] }}</td>
+                            <td>{{ fatura.data_vencimento[:10].split('-')[2] }}/{{
+                                fatura.data_vencimento[:10].split('-')[1] }}/{{
+                                fatura.data_vencimento[:10].split('-')[0] }}</td>
                             <td>{{ fatura.juros }}%</td>
                             <td>{{ fatura.descricao }}</td>
                             <td>
@@ -53,8 +61,8 @@
         </div>
     </div>
 </main>
+
+<script src="{{ url_for('static', filename='js/faturas.js') }}"></script>
 {% include "components/popup.html" %}
 
 {% endblock %}
-
-

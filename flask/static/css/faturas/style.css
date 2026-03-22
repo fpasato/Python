@@ -12,7 +12,7 @@
     --shadow-sm: 0 1px 3px rgba(0,0,0,0.1);
     --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
     --radius: 8px;
-    --transition: all 0.3s ease;
+    --transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 /* 2. Reset & Tipografia */
@@ -56,21 +56,53 @@ h1 {
     color: var(--text-muted);
 }
 
-/* 5. Cards (Fatura Container) */
-.fatura-container {
-    background-color: var(--surface-color);
+.saldo-card {
+    background: var(--primary-color);
+    color: white;
+    padding: 1rem 1.5rem;
     border-radius: var(--radius);
-    padding: 1.5rem;
-    border: 1px solid var(--border-color);
-    box-shadow: var(--shadow-sm);
     margin-bottom: 1.5rem;
+    font-weight: 600;
+    text-align: center; /* pode remover se quiser deixar flex total */
+    box-shadow: 0 4px 6px rgba(0, 102, 255, 0.2);
+    font-size: 1.1rem;
+    display: flex;
+    justify-content: space-between; /* texto à esquerda, botão à direita */
+    align-items: center;
+}
+/* Botão Pagar Todas menor */
+.saldo-card .btn-pagar {
+    background: white;
+    color: var(--primary-color);
+    border: none;
+    padding: 0.3rem 0.6rem;   /* diminui padding */
+    border-radius: var(--radius);
+    font-weight: 600;
+    font-size: 0.8rem;        /* fonte menor */
+    cursor: pointer;
     transition: var(--transition);
-    overflow-x: auto; /* Garante scroll em tabelas no mobile */
+    width: auto;               /* largura automática, não ocupa 100% */
+    min-width: 80px;           /* opcional: largura mínima */
 }
 
+/* Card */
+.fatura-container {
+    border: 3px solid transparent; 
+    border-top: 40px solid var(--primary-color);
+    border-radius: 0.8rem;
+    margin-bottom: 1rem;
+    padding: 1rem;
+    transition: var(--transition);
+    background-color: var(--surface-color);
+}
+
+/* Hover do card */
 .fatura-container:hover {
-    transform: translateY(-4px);
     box-shadow: var(--shadow-md);
+    transform: translateY(-4px) scale(1.005);
+    cursor: pointer;
+
+    border-color: var(--primary-color); /* destaca todas as bordas */
 }
 
 /* 6. Tabelas */
@@ -78,8 +110,18 @@ table {
     width: 100%;
     border-collapse: collapse;
     font-size: 1rem;
-    min-width: 800px; /* Evita quebra de layout em telas médias */
+    max-width: 1200px;
+    min-width: 800px;
+    table-layout: fixed; /* Distribui espaço igualmente entre colunas */
 }
+
+th:nth-child(1) { width: 15%; } /* Tipo */
+th:nth-child(2) { width: 15%; } /* Valor */
+th:nth-child(3) { width: 15%; } /* Status */
+th:nth-child(4) { width: 20%; } /* Data de vencimento */
+th:nth-child(5) { width: 10%; } /* Juros */
+th:nth-child(6) { width: 15%; } /* Descrição */
+th:nth-child(7) { width: 10%; } /* Ação */
 
 th {
     text-align: left;
@@ -88,12 +130,19 @@ th {
     font-weight: 700;
     color: var(--text-main);
     border-bottom: 2px solid var(--border-color);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 td {
     padding: 1rem;
     border-bottom: 1px solid var(--border-color);
     vertical-align: middle;
+    text-align: left;
+    white-space: nowrap; /* Impede quebra de linha, mantendo alinhamento */
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 tr:hover td {
@@ -125,11 +174,59 @@ tr:hover td {
     outline-offset: 2px;
 }
 
-/* 8. Estilização de Status (Baseado na regra de alertas) */
-/* Se você puder adicionar classes dinâmicas no seu Jinja2 futuramente */
-td:contains("Pendente") {
+/* 8. Estilização de Status (Dinâmico via JavaScript) */
+.status-pendente {
     color: var(--error-color);
     font-weight: 600;
+}
+
+.status-pago {
+    color: var(--success-color);
+    font-weight: 600;
+}
+
+.status-atrasado {
+    color: #dc2626;
+    font-weight: 700;
+    background-color: #fef2f2;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+}
+
+/* Estilização de Valores */
+.valor-alto {
+    color: var(--error-color);
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+
+.valor-medio {
+    color: var(--text-main);
+    font-weight: 600;
+}
+
+.valor-baixo {
+    color: var(--success-color);
+    font-weight: 500;
+}
+
+/* Estilização de Juros */
+.juros-alto {
+    color: var(--error-color);
+    font-weight: 700;
+    background-color: #fef2f2;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+}
+
+.juros-medio {
+    color: #f59e0b;
+    font-weight: 600;
+}
+
+.juros-zero {
+    color: var(--success-color);
+    font-weight: 500;
 }
 
 /* 9. Responsividade (Mobile First) */
@@ -155,3 +252,16 @@ td:contains("Pendente") {
         animation: none !important;
     }
 }
+
+
+
+/* CSS */
+.status-pendente { color: #ef4444; font-weight: 600; }
+.status-pago { color: #10b981; font-weight: 600; }
+.status-atrasado { color: #dc2626; font-weight: 700; background: #fef2f2; padding: 0.25rem 0.5rem; border-radius: 4px; }
+.valor-alto { color: #ef4444; font-weight: 700; font-size: 1.1rem; }
+.valor-medio { color: #1a1d23; font-weight: 600; }
+.valor-baixo { color: #10b981; font-weight: 500; }
+.juros-alto { color: #ef4444; font-weight: 700; background: #fef2f2; padding: 0.25rem 0.5rem; border-radius: 4px; }
+.juros-medio { color: #f59e0b; font-weight: 600; }
+.juros-zero { color: #10b981; font-weight: 500; }

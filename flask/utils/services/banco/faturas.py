@@ -12,34 +12,43 @@ def get_faturas(conta_id):
     conn.close()
     return faturas
 
-
-def pagar_fatura(fatura_id):
-    conn = get_db()
-    cursor = conn.cursor()
+def pagar_fatura(fatura_id, conn=None):
+    # Se não recebeu conexão, abre uma nova
+    local_conn = conn if conn else get_db()
+    cursor = local_conn.cursor()
+    
     cursor.execute("UPDATE faturas SET status = 'pago' WHERE id = ?", (fatura_id,))
-    conn.commit()
-    conn.close()
+    
+    # Só commita e fecha se a conexão for local (criada aqui dentro)
+    if not conn:
+        local_conn.commit()
+        local_conn.close()
     return True
 
-def registrar_transacao(conta_id, valor):
-    conn = get_db()
-    cursor = conn.cursor()
+def registrar_transacao(conta_id, valor, conn=None):
+    local_conn = conn if conn else get_db()
+    cursor = local_conn.cursor()
+    
     cursor.execute("""
         INSERT INTO transacoes_conta (conta_id, valor, tipo, descricao)
         VALUES (?, ?, 'debito', 'Pagamento de fatura')
     """, (conta_id, valor))
-    conn.commit()
-    conn.close()
+    
+    if not conn:
+        local_conn.commit()
+        local_conn.close()
     return True
 
-def deletar_fatura(fatura_id):
-    conn = get_db()
-    cursor = conn.cursor()
+def deletar_fatura(fatura_id, conn=None):
+    local_conn = conn if conn else get_db()
+    cursor = local_conn.cursor()
+    
     cursor.execute("DELETE FROM faturas WHERE id = ?", (fatura_id,))
-    conn.commit()
-    conn.close()
+    
+    if not conn:
+        local_conn.commit()
+        local_conn.close()
     return True
-
 
 def get_valor_fatura(fatura_id, conta_id):
     conn = get_db()
@@ -93,7 +102,7 @@ def gerar_faturas_mensais_obrigatorias(conta_id):
             nome,
             valor,
             "pendente",
-            datetime.now() + timedelta(seconds=30),
+            datetime.now() + timedelta(hours=1),
             descricao
         ))
 
@@ -136,7 +145,7 @@ def gerar_faturas_aleatorias(conta_id):
             tipo,
             valor,
             "pendente",
-            datetime.now() + timedelta(seconds=30),
+            datetime.now() + timedelta(hours=1),
             descricao
         ))
     

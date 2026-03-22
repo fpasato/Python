@@ -1,175 +1,178 @@
-/* Reset básico para garantir que a fonte fique agradável */
+/* ==========================================================================
+   1. CONFIGURAÇÕES GERAIS E TOKENS
+   ========================================================================== */
+:root {
+    --primary-color: #0066ff;
+    --primary-hover: #0052cc;
+    --bg-color: #f8f9fa;
+    --surface-color: #ffffff;
+    --text-main: #1a1d23;
+    --text-muted: #8343e9;
+    --border-color: #e2e8f0;
+    --success-color: #10b981;
+    --error-color: #ef4444;
+    
+    /* Sombras e Geometria (Regras 2 e 3) */
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.1);
+    --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+    --shadow-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    --radius: 8px; /* Regra 3 */
+    --transition: all 0.3s ease;
+}
+
+/* ==========================================================================
+   2. BASE E LAYOUT (REGRA 2 E 8)
+   ========================================================================== */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
 
 body {
-  font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  background-color: #e5dbe5; /* Fundo cinza bem claro */
-  color: #333;
-  margin: 0;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif; /* Regra 1 */
+    background-color: var(--bg-color);
+    color: var(--text-main);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
 }
 
-/* O container principal */
+main {
+    display: flex;
+    justify-content: center;
+    padding: 2rem 1rem;
+}
 
 .container {
-  display: flex;
-
-  flex-direction: column;
-
-  align-items: center;
-  min-height: 100vh;
-
-  padding: 2rem 1rem;
-
-  box-sizing: border-box;
+    width: 100%;
+    max-width: 1280px; /* Regra 2 */
+    margin: 0 auto;
 }
 
-.header {
-  width: 100%;
-
-  max-width: none;
-
-  margin-bottom: 2rem;
-}
-
+/* ==========================================================================
+   3. TIPOGRAFIA (REGRA 1)
+   ========================================================================== */
 h1 {
-  color: #2c3e50;
-
-  margin-bottom: 1.5rem;
-
-  font-weight: 700;
+    font-size: 2rem; /* Regra 1: Títulos Grandes */
+    font-weight: 700;
+    margin-bottom: 2rem;
+    color: var(--text-main);
 }
 
-/* O Cartão de Saldo */
+h3 {
+    font-size: 0.875rem; /* Regra 1: Textos pequenos para rótulos */
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+    margin-bottom: 0.5rem;
+}
 
+h4 {
+    font-size: 1rem; 
+    font-weight: 400;
+    color: var(--text-muted);
+    display: flex;
+    justify-content: space-between;
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--border-color); 
+}
+
+h4 span {
+    font-weight: 600;
+    color: var(--text-main);
+}
+
+/* Destaque do Saldo */
+#saldo {
+    display: block;
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    letter-spacing: -0.05em;
+    margin-bottom: 1rem;
+}
+
+/* ==========================================================================
+   4. CARDS E SUPERFÍCIES (REGRA 3)
+   ========================================================================== */
 .saldo-container {
-  background: #ffffff;
-
-  border-radius: 12px;
-
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08); /* Sombra suave */
-
-  padding: 2rem 2.5rem;
-
-  width: 100%;
-
-  max-width: 400px; /* Evita que fique muito esticado no PC */
-
-  margin-bottom: 2rem;
-
-  border-top: 5px solid #27ae60; /* Detalhe verde no topo (remete a dinheiro) */
+    background: var(--surface-color);
+    padding: 2rem;
+    border-radius: var(--radius);
+    border: 3px solid transparent;
+    border-top: 30px solid var(--primary-color);
+    box-shadow: var(--shadow-sm);
+    transition: var(--transition);
+    max-width: 540px;
+    margin-bottom: 1.5rem;
 }
 
-/* Destaque para o Saldo Atual */
+/* Efeito de elevação (Regra 3) */
+.saldo-container:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-hover);
+    border-color: var(--primary-color);
 
-.saldo-container h3 {
-  font-size: 1rem;
-
-  color: #7f8c8d;
-
-  margin-top: 0;
-
-  margin-bottom: 1.5rem;
-
-  border-bottom: 1px solid #ecf0f1;
-
-  padding-bottom: 1rem;
-
-  text-transform: uppercase;
-
-  letter-spacing: 0.5px;
 }
 
-.saldo-container h3 span {
-  display: block;
-
-  font-size: 2.8rem;
-
-  color: #2c3e50;
-
-  font-weight: 800;
-
-  margin-top: 0.5rem;
-
-  letter-spacing: -1px;
-}
-
-/* Lista de informações da conta */
-
-.saldo-container h4 {
-  font-size: 0.95rem;
-
-  color: #555;
-
-  margin: 0.8rem 0;
-
-  display: flex;
-
-  justify-content: space-between; /* Separa o rótulo do valor (ex: Titular ----- Fernando) */
-
-  font-weight: 400;
-}
-
-.saldo-container h4 span {
-  font-weight: 600;
-
-  color: #2c3e50;
-
-  text-align: right;
-}
-
-/* Container flex para os botões ficarem lado a lado (opcional) ou em coluna */
-
-/* Estilo geral dos botões */
-
-button {
-  width: 100%;
-
-  max-width: 400px;
-
-  padding: 1rem;
-
-  font-size: 1rem;
-
-  font-weight: 600;
-
-  border: none;
-
-  border-radius: 8px;
-
-  cursor: pointer;
-
-  margin-bottom: 1rem;
-
-  transition: all 0.2s ease;
-}
-
-button:active {
-  transform: scale(0.98); /* Efeito de "clique" ao pressionar */
-}
-
-/* Botão Primário (Atualizar) */
-
+/* ==========================================================================
+   5. BOTÕES (REGRA 4)
+   ========================================================================== */
 #btn-refresh {
-  background-color: #27ae60;
-
-  color: white;
-
-  box-shadow: 0 4px 12px rgba(39, 174, 96, 0.3);
+    background-color: var(--primary-color);
+    color: #ffffff;
+    font-size: 1rem;
+    font-weight: 600;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: var(--transition);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
 #btn-refresh:hover {
-  background-color: #219653;
-
-  box-shadow: 0 6px 16px rgba(39, 174, 96, 0.4);
+    background-color: var(--primary-hover);
+    box-shadow: 0 4px 12px rgba(0, 102, 255, 0.25);
 }
 
-/* Botão Secundário (Simular pagamento) */
-
-button:not(#btn-refresh) {
-  background-color: #ecf0f1;
-
-  color: #2c3e50;
+#btn-refresh:active {
+    transform: scale(0.98);
 }
 
-button:not(#btn-refresh):hover {
-  background-color: #bdc3c7;
+/* ==========================================================================
+   6. RESPONSIVIDADE (REGRA 8)
+   ========================================================================== */
+@media (max-width: 768px) {
+    h1 { font-size: 1.5rem; }
+    
+    .saldo-container {
+        padding: 1.5rem;
+    }
+
+    #saldo {
+        font-size: 2rem;
+    }
+
+    #btn-refresh {
+        width: 100%; /* Botão full-width no mobile */
+    }
 }
+
+/* ==========================================================================
+   7. UTILITÁRIOS DE ALERTA (REGRA 7)
+   ========================================================================== */
+.alert-box {
+    padding: 1rem;
+    border-radius: var(--radius);
+    margin-bottom: 1rem;
+    background: #fff;
+    border-left: 4px solid var(--primary-color);
+    box-shadow: var(--shadow-sm);
+}
+
+.alert-success { border-color: var(--success-color); }
+.alert-error { border-color: var(--error-color); }
