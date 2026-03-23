@@ -12,6 +12,7 @@ from routes.cards import cards_bp
 from routes.investimento import investimento_bp
 from routes.emprego import emprego_bp
 from routes.faturas import faturas_bp  
+from routes.extrato import extrato_bp
 
 
 
@@ -31,6 +32,7 @@ app.register_blueprint(cards_bp)
 app.register_blueprint(investimento_bp)
 app.register_blueprint(emprego_bp)
 app.register_blueprint(faturas_bp)
+app.register_blueprint(extrato_bp)
 
 
 @app.route("/")

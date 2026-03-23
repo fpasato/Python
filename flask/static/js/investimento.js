@@ -1,4 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
+
+    let ultimoRecargaHistorico = null;
+
     // ========== Elementos DOM ==========
     const modal = document.getElementById('modal-overlay');
     const btnClose = document.querySelector('.close-modal');
@@ -11,15 +14,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const modalCarteiraExtra = document.getElementById('modal-carteira-extra');
     const modalQtdCarteiraEl = document.getElementById('modal-qtd-carteira');
     const modalLucroPrejuizoEl = document.getElementById('modal-lucro-prejuizo');
-    const modalQtdVenderAtualEl = document.getElementById('modal-qtd-vender-atual');
     const formComprar = document.getElementById('form-comprar');
     const inputInvestimentoIdComprar = document.getElementById('input-investimento-id');
     const inputQuantidadeComprar = document.getElementById('input-quantidade-compra');
     const modalTotalCompraEl = document.getElementById('modal-total-compra');
-    const formVender = document.getElementById('form-vender');
-    const inputInvestimentoIdVender = document.getElementById('input-investimento-id-vender');
-    const inputQuantidadeVender = document.getElementById('input-quantidade-vender');
-    const modalTotalVendaEl = document.getElementById('modal-total-venda');
     const saldoAtualEl = document.getElementById('saldo-atual');
     const modalHistoricoCanvas = document.getElementById('modal-historico-chart');
 
@@ -116,7 +114,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         let investimentos;
         if (investimentosDoServidor) {
-            // Converte os dados do servidor para o formato do storage
             investimentos = {};
             investimentosDoServidor.forEach(item => {
                 if (item.temporario) {
@@ -134,7 +131,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     };
                 }
             });
-            // Salva no localStorage para uso futuro
             localStorage.setItem('investimentos_temporarios', JSON.stringify(investimentos));
         } else {
             investimentos = carregarInvestimentosDoStorage();
@@ -172,9 +168,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ========== Atualização dos cards com dados do servidor ==========
     function atualizarCardsComDadosDoServidor(carteira) {
-        // Atualiza o localStorage
         salvarInvestimentosNoStorage(carteira);
-        // Atualiza os cards existentes (ou recria)
         const investimentosStorage = carregarInvestimentosDoStorage();
         document.querySelectorAll('.invest-item-card').forEach(card => {
             const uniqueId = card.dataset.id;
@@ -189,7 +183,16 @@ document.addEventListener('DOMContentLoaded', () => {
             const lucroEl = card.querySelector('.card-lucro');
             if (qtdEl) qtdEl.textContent = inv.quantidade;
             if (saldoEl) saldoEl.innerText = formatBRL(inv.saldo);
-            if (lucroEl) lucroEl.innerText = formatBRL(inv.lucroPrejuizo);
+            if (lucroEl) {
+                const lucroValor = inv.lucroPrejuizo;
+                lucroEl.innerText = formatBRL(lucroValor);
+                lucroEl.classList.remove('positive', 'negative');
+                if (lucroValor > 0) {
+                    lucroEl.classList.add('positive');
+                } else if (lucroValor < 0) {
+                    lucroEl.classList.add('negative');
+                }
+            }
             card.dataset.expira = inv.expira_em;
         });
     }
@@ -205,29 +208,23 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (tempoSpan) {
                     const agora = Date.now();
                     const tempoRestanteMs = inv.duracao - (agora - inv.tempo_inicio);
-
                     if (tempoRestanteMs <= 0) {
                         delete investimentosStorage[id];
                         card.remove();
                     } else {
                         const tempoRestanteSegundos = Math.floor(tempoRestanteMs / 1000);
-
                         const horas = Math.floor(tempoRestanteSegundos / 3600);
                         const minutos = Math.floor((tempoRestanteSegundos % 3600) / 60);
                         const segundos = tempoRestanteSegundos % 60;
-
                         let texto = horas > 0 
                             ? `${horas.toString().padStart(2, '0')}:${minutos.toString().padStart(2, '0')}:${segundos.toString().padStart(2, '0')}`
                             : `${minutos.toString().padStart(2, '0')}:${segundos.toString().padStart(2, '0')}`;
-
                         tempoSpan.textContent = texto;
                     }
                 }
             }
-            // NÃO decrementa tempo_restante aqui – ele será atualizado pelo servidor.
         }, 1000);
     }
-
 
     // ========== Gráfico ==========
     const carregarHistorico = async (investimentoId) => {
@@ -243,28 +240,53 @@ document.addEventListener('DOMContentLoaded', () => {
     const renderizarGrafico = (historico) => {
         if (!modalHistoricoCanvas) return;
         if (modalHistoricoChartInstance) modalHistoricoChartInstance.destroy();
+
         let pontos = Array.isArray(historico) ? [...historico] : [];
-        pontos.sort((a, b) => new Date(b.data) - new Date(a.data));
-        pontos = pontos.slice(0, 10);
-        const pontoAtual = { data: new Date().toISOString(), preco: currentPreco };
-        const ultimoPonto = pontos[0];
-        const jaTemAtual = ultimoPonto && new Date(ultimoPonto.data).toISOString().slice(0, 19) === pontoAtual.data.slice(0, 19);
-        if (!jaTemAtual) {
-            pontos.unshift(pontoAtual);
-            if (pontos.length > 10) pontos.pop();
-        }
         pontos.sort((a, b) => new Date(a.data) - new Date(b.data));
+        if (pontos.length > 30) pontos = pontos.slice(-30);
+
+        const pontoAtual = { data: new Date().toISOString(), preco: currentPreco };
+        const ultimoPonto = pontos[pontos.length - 1];
+        const jaTemAtual = ultimoPonto && new Date(ultimoPonto.data).toISOString().slice(0, 19) === pontoAtual.data.slice(0, 19);
+
+        if (!jaTemAtual) {
+            pontos.push(pontoAtual);
+            if (pontos.length > 30) pontos.shift();
+        }
+
         const labels = pontos.map(p => formatarDataParaExibicao(p.data));
         const dados = pontos.map(p => Number(p.preco) || 0);
+
         let lineColor = '#0DA694';
         if (dados.length >= 2) {
             lineColor = dados[dados.length - 1] < dados[dados.length - 2] ? '#ef4444' : '#22c55e';
         }
         const lineBg = lineColor === '#ef4444' ? 'rgba(239, 68, 68, 0.15)' : 'rgba(34, 197, 94, 0.15)';
+
         modalHistoricoChartInstance = new Chart(modalHistoricoCanvas.getContext('2d'), {
             type: 'line',
-            data: { labels, datasets: [{ label: 'Preço da cota', data: dados, borderColor: lineColor, backgroundColor: lineBg, pointRadius: 2, borderWidth: 2, tension: 0.25 }] },
-            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { ticks: { maxTicksLimit: 6 } }, y: { beginAtZero: false } } }
+            data: {
+                labels,
+                datasets: [{
+                    label: 'Preço da cota',
+                    data: dados,
+                    borderColor: lineColor,
+                    backgroundColor: lineBg,
+                    pointRadius: 2,
+                    borderWidth: 2,
+                    tension: 0.25,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { ticks: { maxTicksLimit: 6 } },
+                    y: { beginAtZero: false }
+                }
+            }
         });
     };
 
@@ -272,12 +294,15 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!modalHistoricoChartInstance) return;
         const chart = modalHistoricoChartInstance;
         const novoLabel = formatarDataParaExibicao(new Date().toISOString());
-        chart.data.labels.unshift(novoLabel);
-        chart.data.datasets[0].data.unshift(novoPreco);
-        if (chart.data.labels.length > 10) {
-            chart.data.labels.pop();
-            chart.data.datasets[0].data.pop();
+
+        chart.data.labels.push(novoLabel);
+        chart.data.datasets[0].data.push(novoPreco);
+
+        if (chart.data.labels.length > 30) {
+            chart.data.labels.shift();
+            chart.data.datasets[0].data.shift();
         }
+
         const dados = chart.data.datasets[0].data;
         if (dados.length >= 2) {
             const lineColor = dados[dados.length - 1] < dados[dados.length - 2] ? '#ef4444' : '#22c55e';
@@ -301,15 +326,6 @@ document.addEventListener('DOMContentLoaded', () => {
         modalTotalCompraEl.innerText = formatBRL(currentPreco * qtd);
     };
 
-    const updateSellTotal = () => {
-        const max = currentQuantidadeCarteira;
-        let qtd = parsePositiveInt(inputQuantidadeVender.value, 1);
-        if (typeof max === 'number') qtd = Math.min(qtd, max);
-        inputQuantidadeVender.value = qtd;
-        if (modalQtdVenderAtualEl) modalQtdVenderAtualEl.innerText = String(qtd);
-        modalTotalVendaEl.innerText = formatBRL(currentPreco * qtd);
-    };
-
     // ========== Modal ==========
     const carregarDetalhesModal = async (params) => {
         const { id, investimentoId, temporario } = params;
@@ -319,13 +335,10 @@ document.addEventListener('DOMContentLoaded', () => {
         modalInfo.innerText = '...';
         modalPrecoCota.innerText = formatBRL(0);
         modalTotalCompraEl.innerText = formatBRL(0);
-        modalTotalVendaEl.innerText = formatBRL(0);
         currentPreco = 0;
         currentQuantidadeCarteira = null;
         inputInvestimentoIdComprar.value = investimentoId;
-        inputInvestimentoIdVender.value = investimentoId;
         inputQuantidadeComprar.value = 1;
-        inputQuantidadeVender.value = 1;
         let url;
         if (temporario !== undefined) {
             url = `/investimento/detalhes-item?tipo=${temporario ? 'temporario' : 'normal'}&id=${id}&investimento_id=${investimentoId}`;
@@ -358,42 +371,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (typeof data.lucro_prejuizo !== 'undefined') {
                     modalLucroPrejuizoEl.innerText = formatBRL(data.lucro_prejuizo);
                 }
-                formVender.style.display = 'block';
-                const ehTemporario = Boolean(data.temporario);
-                const btnVender = formVender.querySelector('button[type="submit"]');
-                if (ehTemporario) {
-                    inputQuantidadeVender.value = '0';
-                    inputQuantidadeVender.disabled = true;
-                    modalTotalVendaEl.innerText = formatBRL(0);
-                    if (btnVender) {
-                        btnVender.disabled = true;
-                        btnVender.title = 'Venda bloqueada: investimento com prazo';
-                    }
-                    let msg = formVender.querySelector('.temp-warning');
-                    if (!msg) {
-                        msg = document.createElement('p');
-                        msg.className = 'temp-warning';
-                        msg.style.color = '#f97316';
-                        msg.style.fontSize = '0.8rem';
-                        msg.style.marginTop = '5px';
-                        formVender.appendChild(msg);
-                    }
-                    msg.textContent = 'Este investimento possui prazo e não pode ser vendido antes do vencimento.';
-                } else {
-                    inputQuantidadeVender.disabled = false;
-                    inputQuantidadeVender.max = String(qtd);
-                    inputQuantidadeVender.value = String(Math.min(1, qtd) || 1);
-                    updateSellTotal();
-                    if (btnVender) {
-                        btnVender.disabled = false;
-                        btnVender.title = '';
-                    }
-                    const msg = formVender.querySelector('.temp-warning');
-                    if (msg) msg.remove();
-                }
             } else {
                 modalCarteiraExtra.style.display = 'none';
-                formVender.style.display = 'none';
                 currentQuantidadeCarteira = null;
             }
             await carregarErenderizarGrafico();
@@ -413,9 +392,7 @@ document.addEventListener('DOMContentLoaded', () => {
             ultimoServerTime = data.server_time;
             ultimoLocalTime = Date.now();
             saldoAtualEl.innerText = formatBRL(data.saldo || 0);
-            // Atualiza cards a partir dos dados do servidor e salva no localStorage
             atualizarCardsComDadosDoServidor(data.carteira);
-            // Atualiza ativos disponíveis
             const ativos = Array.isArray(data.ativos_disponiveis) ? data.ativos_disponiveis : [];
             const ativosPorId = new Map(ativos.map(item => [String(item.id), item]));
             document.querySelectorAll('.ativo-card').forEach(card => {
@@ -428,38 +405,39 @@ document.addEventListener('DOMContentLoaded', () => {
                 card.dataset.preco = String(ativo.valor_cota || 0);
                 card.dataset.risco = String(ativo.risco || '');
             });
-            // Atualiza modal se aberto (detalhes)
+            
             if (modal.classList.contains('active') && currentUniqueId) {
-                const investimentosStorage = carregarInvestimentosDoStorage();
-                const item = investimentosStorage[currentUniqueId];
-                if (item) {
-                    const precoAtualizado = Number(item.preco_atual) || currentPreco;
-                    const qtdAtualizada = Number(item.quantidade) || 0;
-                    const lucroPrejuizo = item.lucroPrejuizo;
+                const itemAtualizado = data.carteira.find(item => item.id == currentUniqueId);
+                if (itemAtualizado) {
+                    const precoAtualizado = Number(itemAtualizado.preco_atual) || 0;
+                    const qtdAtualizada = Number(itemAtualizado.quantidade) || 0;
+                    const lucroPrejuizo = itemAtualizado.lucro_prejuizo;
+
                     if (precoAtualizado !== currentPreco) {
                         currentPreco = precoAtualizado;
                         modalPrecoCota.innerText = formatBRL(currentPreco);
                         updateBuyTotal();
-                        if (formVender.style.display === 'block') updateSellTotal();
                         adicionarPontoAoGrafico(currentPreco);
                     }
                     if (qtdAtualizada !== currentQuantidadeCarteira) {
                         currentQuantidadeCarteira = qtdAtualizada;
                         modalQtdCarteiraEl.innerText = String(currentQuantidadeCarteira);
-                        inputQuantidadeVender.max = String(currentQuantidadeCarteira);
-                        if (inputQuantidadeVender.value > currentQuantidadeCarteira) {
-                            inputQuantidadeVender.value = String(currentQuantidadeCarteira);
-                            updateSellTotal();
-                        }
                     }
-                    if (lucroPrejuizo !== null) {
+                    if (lucroPrejuizo !== null && lucroPrejuizo !== undefined) {
                         modalLucroPrejuizoEl.innerText = formatBRL(lucroPrejuizo);
                     }
                 } else {
-                    modal.classList.remove('active');
+                    const investimentosStorage = carregarInvestimentosDoStorage();
+                    const item = investimentosStorage[currentUniqueId];
+                    if (!item) modal.classList.remove('active');
+                }
+
+                const agora = Date.now();
+                if (!ultimoRecargaHistorico || (agora - ultimoRecargaHistorico) > 30000) {
+                    ultimoRecargaHistorico = agora;
+                    carregarErenderizarGrafico();
                 }
             }
-            // Notificações
             if (data.notificacoes && data.notificacoes.length > 0) {
                 data.notificacoes.forEach(notif => {
                     if (notif.tipo === 'venda_automatica') {
@@ -478,11 +456,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // ========== Abrir modal a partir de card ==========
+    // ========== Abrir modal ==========
     const abrirModalPeloCard = async (e, card) => {
+        console.log("Abrindo modal para card:", card);
         if (e && (e.target.closest('form') || e.target.closest('button'))) return;
         const investimentoId = card.dataset.investimentoId || card.dataset.ativoId;
         if (!investimentoId) return;
+        console.log("investimentoId:", investimentoId);
         const uniqueId = card.dataset.id;
         const temporario = card.dataset.temporario === '1';
         if (uniqueId !== undefined) {
@@ -495,29 +475,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ========== Event Listeners ==========
     if (inputQuantidadeComprar) inputQuantidadeComprar.addEventListener('input', updateBuyTotal);
-    if (inputQuantidadeVender) inputQuantidadeVender.addEventListener('input', updateSellTotal);
     btnClose.addEventListener('click', () => modal.classList.remove('active'));
     modal.addEventListener('click', (e) => { if (e.target === modal) modal.classList.remove('active'); });
-    document.querySelectorAll('.invest-item-card, .ativo-card').forEach(card => {
-        card.addEventListener('click', (e) => abrirModalPeloCard(e, card));
-    });
-    document.querySelectorAll('button[type="submit"]').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            if (btn.disabled) {
-                e.preventDefault();
-                return;
-            }
-            setTimeout(() => { btn.disabled = true; }, 0);
-            setTimeout(() => { btn.disabled = false; }, 3000);
+
+    const containerCarteira = document.querySelector('.investimentos-lista');
+    if (containerCarteira) {
+        containerCarteira.addEventListener('click', (e) => {
+            const card = e.target.closest('.invest-item-card');
+            if (!card) return;
+            if (e.target.closest('form') || e.target.closest('button')) return;
+            abrirModalPeloCard(e, card);
         });
-    });
+    }
+
+    const containerAtivos = document.querySelector('.ativos-grid');
+    if (containerAtivos) {
+        containerAtivos.addEventListener('click', (e) => {
+            const card = e.target.closest('.ativo-card');
+            if (!card) return;
+            if (e.target.closest('form') || e.target.closest('button')) return;
+            abrirModalPeloCard(e, card);
+        });
+    }
 
     // ========== Inicialização ==========
-    // Carrega cards do localStorage (se existirem)
     renderizarCards(window.initialCarteira);
-    // Inicia contagem regressiva local
     iniciarContagemLocal();
-    // Primeiro polling e repetição
     atualizarValoresPagina().catch(() => {});
     setInterval(() => atualizarValoresPagina().catch(() => {}), 5000);
 });

@@ -170,27 +170,33 @@ body {
 
 .invest-item-card {
     background: var(--card-bg);
-    border-radius: var(--radius-md);
     padding: 1.5rem;
     display: grid;
     grid-template-columns: 1.5fr 3fr 1fr;
     align-items: center;
     gap: 1rem;
-    border: 1px solid var(--border);
     transition: all var(--transition-fast);
     box-shadow: var(--shadow-sm);
+
+    border: none;
+    border-radius: 0.8rem;
+    border: 2px solid transparent;
+    border-top: 25px solid #1B3745;
 }
 
 .invest-item-card:hover {
     transform: translateX(4px);
-    border-color: var(--primary-light);
+    filter: brightness(1.2);
     box-shadow: var(--shadow-md);
+    border-color: #1B3745;
+
 }
 
 .item-info strong {
     font-size: 1.1rem;
     color: var(--dark);
     font-weight: 700;
+    
 }
 
 .item-details {
@@ -201,7 +207,7 @@ body {
 
 .item-details small {
     display: block;
-    color: var(--text-muted);
+    color: #000;
     font-size: 0.7rem;
     text-transform: uppercase;
     font-weight: 700;
@@ -214,11 +220,10 @@ body {
 }
 
 .card-lucro.positive {
-    color: var(--success);
+    color: green;
 }
-
 .card-lucro.negative {
-    color: var(--error);
+    color: red;
 }
 
 /* ===== EXPLORAR (Grid de Ativos) ===== */
@@ -580,22 +585,3 @@ a, button, .btn, .ativo-card, .invest-item-card {
     opacity: 0.6;
 }
 
-/* Ajuste do grid para dar mais espaço às informações */
-.invest-item-card {
-    background: var(--card-bg);
-    border-radius: var(--radius-md);
-    padding: 1.5rem;
-    display: grid;
-    grid-template-columns: 1.5fr 3fr 80px;
-    align-items: center;
-    gap: 1rem;
-    border: 1px solid var(--border);
-    transition: all var(--transition-fast);
-    box-shadow: var(--shadow-sm);
-}
-
-/* Melhor contraste para textos pequenos */
-small, .small-text {
-    color: var(--text-muted);
-    font-size: 0.75rem;
-}

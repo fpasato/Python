@@ -27,6 +27,7 @@ def carregar_carteira(conta_id):
     temporarios = conn.execute("""
         SELECT 
             it.id as id,
+            it.investimento_id as investimento_id,   -- <-- adicione esta linha
             it.quantidade,
             it.preco_medio,
             i.nome,
@@ -153,11 +154,10 @@ def history_prices(investimento_id):
         FROM historico_precos
         WHERE investimento_id = ?
         ORDER BY data ASC
-        LIMIT 10
+        LIMIT 30
     """, (investimento_id,)).fetchall()
     conn.close()
     return [dict(row) for row in history]
-
 
 import random
 import sqlite3
@@ -198,7 +198,7 @@ def atualizar_ativos():
 
             # Conversão de tendência anual para o intervalo (30 segundos)
             intervalo_horas = 30 / 3600
-            drift = tendencia_anual * (intervalo_horas / 8760)
+            drift = tendencia_anual * (intervalo_horas / 8760)  # 8760 horas/ano
 
             ruido = random.gauss(0, volatilidade)
             reversao = (preco_base - valor) * 0.0003
@@ -214,11 +214,27 @@ def atualizar_ativos():
             # Atualiza preço do ativo
             conn.execute("UPDATE investimentos SET valor_cota = ? WHERE id = ?", (novo_valor, ativo["id"]))
 
-            # Insere histórico – usando a coluna data, não timestamp
+            # Insere histórico – usando a coluna data
             conn.execute("""
                 INSERT INTO historico_precos (investimento_id, preco, data)
                 VALUES (?, ?, ?)
             """, (ativo["id"], novo_valor, datetime.now().isoformat()))
+
+        # Limpa histórico antigo: mantém apenas os últimos 100 registros por ativo
+        for ativo in ativos:
+            keep_ids = conn.execute("""
+                SELECT id FROM historico_precos
+                WHERE investimento_id = ?
+                ORDER BY data DESC
+                LIMIT 100
+            """, (ativo["id"],)).fetchall()
+            keep_ids = [row[0] for row in keep_ids]
+            if keep_ids:
+                placeholders = ','.join('?' for _ in keep_ids)
+                conn.execute(f"""
+                    DELETE FROM historico_precos
+                    WHERE investimento_id = ? AND id NOT IN ({placeholders})
+                """, (ativo["id"], *keep_ids))
 
         # Atualiza timestamp da última atualização (se a coluna existir)
         try:
@@ -228,8 +244,7 @@ def atualizar_ativos():
 
         conn.commit()
         conn.close()
-        print(f"[{datetime.now()}] Ativos atualizados")
-    
+        print(f"[{datetime.now()}] Ativos atualizados e histórico limpo")
 
 def busca_investimento_temporarios():
     conn = get_db()
@@ -278,3 +293,23 @@ def processar_investimentos_expirados():
             notificacoes_pendentes.setdefault(conta_id, []).append(notificacao)
         conn.commit()
     conn.close()
+    
+    
+    
+def limpar_historico_antigo(conn, limite_por_ativo=100):
+    for ativo in ativos:
+        # pega os IDs dos registros a manter
+        keep_ids = conn.execute("""
+            SELECT id FROM historico_precos
+            WHERE investimento_id = ?
+            ORDER BY data DESC
+            LIMIT ?
+        """, (ativo["id"], limite_por_ativo)).fetchall()
+        keep_ids = [row[0] for row in keep_ids]
+        if keep_ids:
+            # deleta os que não estão na lista
+            placeholders = ','.join('?' for _ in keep_ids)
+            conn.execute(f"""
+                DELETE FROM historico_precos
+                WHERE investimento_id = ? AND id NOT IN ({placeholders})
+            """, (ativo["id"], *keep_ids))

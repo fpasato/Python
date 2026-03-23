@@ -49,25 +49,38 @@ def historico(investimento_id):
         return jsonify(history)
     except Exception as e:
         return jsonify({'error': str(e)}), 500
-
 @investimento_bp.route("/investimento/comprar", methods=["POST"])
 def comprar():
     if 'user_info' not in session:
         return redirect(url_for('auth.login'))
+
     conta_id = session['user_info']['conta_id']
     investimento_id = request.form.get('investimento_id')
     quantidade = int(request.form.get('quantidade', 1))
     tempo_em_mili = int(request.form.get('tempo', 60000))
-    
+
+    print(f"DEBUG: Compra - conta_id={conta_id}, investimento_id={investimento_id}, quantidade={quantidade}, tempo={tempo_em_mili}")
+
     success = buy_investment(conta_id, investimento_id, quantidade, tempo_em_mili)
-    
-    
+
     if success:
         session['popup_message'] = "Compra realizada com sucesso!"
         session['popup_type'] = "success"
     else:
-        session['popup_message'] = "Saldo insuficiente ou investimento não encontrado."
+        # Verificar o motivo exato
+        conn = get_db()
+        ativo = conn.execute("SELECT id, nome, ativo FROM investimentos WHERE id = ?", (investimento_id,)).fetchone()
+        conn.close()
+        if not ativo:
+            print("DEBUG: Ativo não encontrado no banco")
+            session['popup_message'] = f"Investimento {investimento_id} não encontrado."
+        elif ativo['ativo'] != 1:
+            print(f"DEBUG: Ativo {investimento_id} está inativo")
+            session['popup_message'] = "Investimento não está disponível para compra."
+        else:
+            session['popup_message'] = "Saldo insuficiente."
         session['popup_type'] = "error"
+
     return redirect(url_for('investimento.investimento'))
 
 
