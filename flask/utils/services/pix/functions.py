@@ -1,21 +1,35 @@
 from utils.validators import get_db
 from uuid import uuid4
 
-# CPF e Email fixos
 def register_default_keys(conta_id, cpf, email):
     conn = get_db()
     cursor = conn.cursor()
-    with conn:
+
+    # Verifica se o CPF já existe como chave em QUALQUER conta
+    cursor.execute("SELECT 1 FROM chaves_pix WHERE chave = ?", (cpf,))
+    if not cursor.fetchone():
         cursor.execute("""
-            INSERT OR IGNORE INTO chaves_pix (conta_id, tipo, chave)
+            INSERT INTO chaves_pix (conta_id, tipo, chave)
             VALUES (?, 'cpf', ?)
         """, (conta_id, cpf))
+        print(f"CPF {cpf} inserido como chave para conta {conta_id}")
+    else:
+        print(f"CPF {cpf} já existe como chave em outra conta")
 
+    # Verifica se o email já existe como chave em QUALQUER conta
+    cursor.execute("SELECT 1 FROM chaves_pix WHERE chave = ?", (email,))
+    if not cursor.fetchone():
         cursor.execute("""
-            INSERT OR IGNORE INTO chaves_pix (conta_id, tipo, chave)
+            INSERT INTO chaves_pix (conta_id, tipo, chave)
             VALUES (?, 'email', ?)
         """, (conta_id, email))
+        print(f"Email {email} inserido como chave para conta {conta_id}")
+    else:
+        print(f"Email {email} já existe como chave em outra conta")
 
+    conn.commit()
+    conn.close()
+    
 # Recupera todas as chaves
 def get_all_keys(conta_id):
     conn = get_db()
@@ -47,6 +61,7 @@ def key_exists(chave):
         cursor.execute("SELECT * FROM chaves_pix WHERE chave = ?", (chave,))
         key = cursor.fetchone()
     return bool(key)
+
 
 
 # Registrar chave aleatória no banco

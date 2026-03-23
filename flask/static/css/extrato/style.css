@@ -1,0 +1,126 @@
+/* RESET */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* FUNDO */
+body {
+    background: #f4f7fb;
+    font-family: 'Inter', sans-serif;
+    color: #1e293b;
+}
+
+/* CONTAINER */
+main {
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 0 20px;
+}
+
+/* TÍTULO */
+h1 {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 25px;
+}
+
+/* CARD */
+.table-responsive {
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+    overflow: hidden;
+}
+
+/* TABELA */
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0;
+}
+
+/* HEADER */
+.table thead th {
+    background: #1e293b !important;
+    color: #ffffff !important;
+    font-size: 1.2rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 16px;
+    border: none !important;
+    font-weight: 600;
+}
+
+/* LINHAS */
+.table tbody td {
+    padding: 16px;
+    border-bottom: 1px solid #e2e8f0;
+    font-size: 1rem;  
+    vertical-align: middle;
+}
+
+/* ZEBRA FUNCIONANDO DE VERDADE */
+.table tbody tr:nth-child(odd) td {
+    background-color: #eefef8c8 !important;
+}
+
+.table tbody tr:nth-child(even) td {
+    background-color: #c9c3c3 !important;
+}
+
+/* HOVER com !important */
+.table tbody tr:hover td {
+    filter: brightness(0.95);
+}
+/* Remove borda da última linha */
+.table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* VALORES */
+.text-success {
+    color: #16a34a !important;
+    font-weight: 600;
+}
+
+.text-danger {
+    color: #dc2626 !important;
+    font-weight: 600;
+}
+
+/* BADGES */
+.badge {
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+    display: inline-block;
+    text-align: center;
+}
+
+.bg-success {
+    background: #dcfce7 !important;
+    color: #166534 !important;
+}
+
+.bg-danger {
+    background: #fee2e2 !important;
+    color: #991b1b !important;
+}
+
+.bg-info {
+    background: #dbeafe !important;
+    color: #1e40af !important;
+}
+
+/* ALERTA */
+.alert-warning {
+    background: #fff7ed;
+    color: #9a3412;
+    padding: 30px;
+    border-radius: 12px;
+    text-align: center;
+    font-weight: 500;
+}

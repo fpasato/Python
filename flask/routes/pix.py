@@ -5,8 +5,7 @@ from utils.services.pix.functions import (
     get_key_by_value,
     create_random_key, 
     register_key, 
-    delete_key_by_id, 
-    register_default_keys,
+    delete_key_by_id,
     mask_cpf
 )
 
@@ -27,11 +26,6 @@ def pix():
     popup_message = session.pop('popup_message', None)
     popup_type = session.pop('popup_type', None)
 
-    register_default_keys(
-        session['user_info']['conta_id'],
-        session['user_info']['cpf'],
-        session['user_info']['email']
-    )
     
     keys = get_all_keys(session['user_info']['conta_id'])
     
@@ -169,7 +163,7 @@ def transferir():
         chave_destino = session.get('destinatario_chave')
         tipo_chave_destino = session.get('destinatario_tipo_chave')
 
-        # Validações básicas
+        # Validações
         if not conta_destino or not chave_destino or not tipo_chave_destino:
             session['popup_message'] = "Dados da transferência incompletos. Refaaça a consulta."
             session['popup_type'] = "error"
@@ -186,19 +180,17 @@ def transferir():
         cursor = conn.cursor()
 
         try:
-            # Buscar uma chave de origem válida para o usuário (a primeira encontrada)
-            cursor.execute("""
-                SELECT chave FROM chaves_pix WHERE conta_id = ? LIMIT 1
-            """, (conta_origem,))
-            row = cursor.fetchone()
-            if not row:
+            # LOG: verificar chaves da conta de origem
+            cursor.execute("SELECT chave FROM chaves_pix WHERE conta_id = ?", (conta_origem,))
+            chaves_origem = cursor.fetchall()
+            print(f"DEBUG: Chaves encontradas para conta {conta_origem}: {chaves_origem}")  # <- importante
+            if not chaves_origem:
                 raise Exception("Você não possui nenhuma chave Pix cadastrada para realizar transferências.")
+            chave_origem = chaves_origem[0][0]  # primeira chave
 
-            chave_origem = row[0]
-
-            # Inicia transação
             cursor.execute("BEGIN")
-
+            
+            
             # Verifica saldo
             cursor.execute("SELECT saldo FROM contas WHERE id = ?", (conta_origem,))
             saldo = cursor.fetchone()[0]

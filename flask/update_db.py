@@ -6,15 +6,15 @@ cursor = conn.cursor()
 # Limpa todas as tabelas exceto investimentos
 tabelas_para_limpar = [
     "contas", 
+    "usuarios",
     "carteira_investimentos", 
     "investimentos_temporarios", 
     "historico_precos",
     "faturas", 
-    "emprestimos", 
-    "transacoes", 
     "transacoes_conta", 
     "cartoes", 
-    "transacoes_pix"
+    "transacoes_pix",
+    "chaves_pix"
 ]
 
 for tabela in tabelas_para_limpar:

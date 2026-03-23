@@ -173,6 +173,31 @@ h1.welcome-title span {
   gap: 0.75rem;
 }
 
+.grid-btns a img {
+    width: 50px;       /* Largura desejada */
+    height: 50px;      /* Altura desejada */
+    object-fit: contain; /* Mantém proporção da imagem sem distorcer */
+    display: block;
+    margin: 0 auto 5px auto; /* Centraliza a imagem e adiciona espaçamento abaixo */
+}
+
+.grid-btns a {
+    text-align: center;      /* Centraliza o texto abaixo da imagem */
+    display: flex;
+    flex-direction: column;  /* Coloca a imagem acima do texto */
+    align-items: center;
+    gap: 5px;                /* Espaço entre imagem e texto */
+    font-size: 14px;         /* Ajusta o tamanho do texto */
+    color: #000;             /* Cor do texto, você pode mudar */
+    text-decoration: none;   /* Remove underline do link */
+}
+
+/* Para dar um hover bonito */
+.grid-btns a:hover img {
+    transform: scale(1.1);
+    transition: transform 0.2s ease;
+}
+
 .other-options a {
   display: flex;
   justify-content: space-between;

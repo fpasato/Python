@@ -68,6 +68,7 @@ def login():
 
             # Agora conta_result é garantidamente não-None
             resultado = session.pop("resultado_emprego", None)
+            
 
             if resultado:
                 salario = resultado.get("salario")
@@ -104,6 +105,15 @@ def login():
                 'numero_conta': conta_result[1],
                 'saldo': conta_result[2]
             }
+                        
+            from utils.services.pix.functions import register_default_keys
+
+            # Dentro da rota de login, após obter os dados do usuário:
+            register_default_keys(
+                session['user_info']['conta_id'],
+                session['user_info']['cpf'],
+                session['user_info']['email']
+            )
 
         return redirect("/home")
 
