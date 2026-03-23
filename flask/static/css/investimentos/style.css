@@ -561,13 +561,37 @@ a, button, .btn, .ativo-card, .invest-item-card {
     background: var(--error);
     color: var(--white);
     font-weight: 600;
-    font-size: 0.9rem;
-    padding: 0.5rem 1rem;
+    font-size: 0.8rem;
+    padding: 0.4rem 0.8rem;
     border-radius: var(--radius-sm);
+    width: auto;
+    min-width: 60px;
+    max-width: 80px;
+    white-space: nowrap;
 }
 
 .btn-sell:hover {
     filter: brightness(0.8);
+}
+
+.btn-sell:disabled {
+    background: #94a3b8;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+/* Ajuste do grid para dar mais espaço às informações */
+.invest-item-card {
+    background: var(--card-bg);
+    border-radius: var(--radius-md);
+    padding: 1.5rem;
+    display: grid;
+    grid-template-columns: 1.5fr 3fr 80px;
+    align-items: center;
+    gap: 1rem;
+    border: 1px solid var(--border);
+    transition: all var(--transition-fast);
+    box-shadow: var(--shadow-sm);
 }
 
 /* Melhor contraste para textos pequenos */

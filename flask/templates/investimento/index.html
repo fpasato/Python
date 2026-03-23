@@ -2,7 +2,12 @@
 
 {% block content %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/investimentos/style.css') }}">
+<script>
+    window.initialCarteira = {{ carteira | tojson | safe }};
+</script>
 <script src="{{ url_for('static', filename='js/investimento.js') }}"></script>
+
+
 
 <div class="invest-wrapper">
     <div class="app-container">
@@ -28,22 +33,38 @@
                     <div class="investimentos-lista">
                         {% if carteira %}
                         {% for investimento in carteira %}
-                        <div class="invest-item-card" data-investimento-id="{{ investimento['investimento_id'] }}"
-                            data-quantidade="{{ investimento['quantidade'] }}" data-saldo="{{ investimento['saldo'] }}">
+                        <div class="invest-item-card" data-id="{{ investimento.id }}"
+                            data-investimento-id="{{ investimento.investimento_id }}"
+                            data-temporario="{{ investimento.temporario }}"
+                            data-quantidade="{{ investimento.quantidade }}" data-saldo="{{ investimento.saldo }}">
+
                             <div class="item-info">
-                                <strong> {{ investimento['nome'] }}</strong>
+                                <strong>{{ investimento.nome }}</strong>
                             </div>
-                            <div class="item-details" style="display: flex; gap: 20px;">
-                                <div><small>Qtd:</small> <strong class="card-qtd">{{ investimento['quantidade'] }}</strong></div>
-                                <div><small>Saldo:</small> <strong class="card-saldo">R$ {{ "{:,.2f}".format(investimento['saldo']) }}</strong></div>
-                                <div><small>Lucro/Prejuízo:</small> <strong class="card-lucro {% if investimento['lucro_prejuizo'] > 0 %}positive{% elif investimento['lucro_prejuizo'] < 0 %}negative{% endif %}">R$ {{ "{:,.2f}".format(investimento['lucro_prejuizo']) }}</strong></div>
+                            <div class="item-details" style="display: flex; gap: 20px; flex-wrap: wrap;">
+                                <div><small>Qtd:</small> <strong class="card-qtd">{{ investimento.quantidade }}</strong>
+                                </div>
+                                <div><small>Saldo:</small> <strong class="card-saldo">R$ {{
+                                        "{:,.2f}".format(investimento.saldo) }}</strong></div>
+                                <div><small>Lucro/Prejuízo:</small>
+                                    <strong
+                                        class="card-lucro {% if investimento.lucro_prejuizo > 0 %}positive{% elif investimento.lucro_prejuizo < 0 %}negative{% endif %}">
+                                        R$ {{ "{:,.2f}".format(investimento.lucro_prejuizo) }}
+                                    </strong>
+                                </div>
+                                {% if investimento.temporario %}
+                                <div><small>Tempo restante:</small>
+                                    <strong class="tempo-restante">--</strong>
+                                </div>
+                                {% endif %}
                             </div>
+                            {% if not investimento.temporario %}
                             <form method="POST" action="{{ url_for('investimento.vender') }}" class="vender-form">
-                                <input type="hidden" name="investimento_id"
-                                    value="{{ investimento['investimento_id'] }}">
-                                <input type="hidden" name="quantidade" value="{{ investimento['quantidade'] }}">
+                                <input type="hidden" name="investimento_id" value="{{ investimento.investimento_id }}">
+                                <input type="hidden" name="quantidade" value="{{ investimento.quantidade }}">
                                 <button class="btn-sell">Vender</button>
                             </form>
+                            {% endif %}
                         </div>
                         {% endfor %}
                         {% else %}
@@ -65,7 +86,8 @@
                             <h3>{{ ativo['nome'] }}</h3>
                             <span style="font-size: 0.85rem; color: var(--text-muted);">Risco: {{ ativo['risco']
                                 }}</span>
-                            <p class="ativo-preco" style="font-weight: bold; color: var(--primary); font-size: 1.2rem;">R$ {{
+                            <p class="ativo-preco" style="font-weight: bold; color: var(--primary); font-size: 1.2rem;">
+                                R$ {{
                                 "{:,.2f}".format(ativo['valor_cota']) }}</p>
                         </div>
                         {% endfor %}
@@ -87,8 +109,10 @@
                     style="display:inline-block; padding: 4px 10px; background: #f1f5f9; border-radius: 6px; font-size: 0.85rem; width: max-content;">Risco</span>
                 <p id="modal-info" class="modal-desc">Descrição detalhada do ativo vai aparecer aqui...</p>
                 <div id="modal-carteira-extra" style="display:none; margin-top: 10px;">
-                    <p style="margin: 0 0 6px 0;"><small>Quantidade:</small> <strong id="modal-qtd-carteira">0</strong></p>
-                    <p style="margin: 0;"><small>Lucro/Prejuízo:</small> <strong id="modal-lucro-prejuizo">R$ 0,00</strong></p>
+                    <p style="margin: 0 0 6px 0;"><small>Quantidade:</small> <strong id="modal-qtd-carteira">0</strong>
+                    </p>
+                    <p style="margin: 0;"><small>Lucro/Prejuízo:</small> <strong id="modal-lucro-prejuizo">R$
+                            0,00</strong></p>
                 </div>
                 <hr style="border: none; border-top: 1px solid var(--border); margin: 20px 0;">
 
@@ -100,19 +124,24 @@
                     <div><small>Saldo conta:</small> <strong id="modal-saldo-conta">R$ 0,00</strong></div>
                 </div>
 
-                <form action="{{ url_for('investimento.comprar') }}" method="POST" id="form-comprar" style="margin-top: 18px;">
+                <form action="{{ url_for('investimento.comprar') }}" method="POST" id="form-comprar"
+                    style="margin-top: 18px;">
                     <input type="hidden" name="investimento_id" id="input-investimento-id">
                     <div style="margin-bottom: 15px;">
                         <label>Quantidade:</label>
-                        <input type="number" name="quantidade" value="1" min="1" id="input-quantidade-compra" class="form-input"
-                            style="width: 100%; padding: 8px;">
+                        <input type="number" name="quantidade" value="1" min="1" id="input-quantidade-compra"
+                            class="form-input" style="width: 100%; padding: 8px;">
                         <label>Tempo:</label>
-                        <select name="tempo" id="input-tempo-compra" class="form-input" style="width: 100%; padding: 8px;">
-                            <option value="">Indefinido</option>
-                            <option value="10">10 segundos</option>
-                            <option value="60">1 minuto</option>
-                            <option value="300">5 minutos</option>
-                            <option value="600">10 minutos</option>
+                        <select name="tempo" id="input-tempo-compra" class="form-input"
+                            style="width: 100%; padding: 8px;">
+                            <option value="10000">10 segundos</option>
+                            <option value="30000">30 segundos</option>
+                            <option value="60000">1 minuto</option>
+                            <option value="300000">5 minutos</option>
+                            <option value="600000">10 minutos</option>
+                            <option value="1800000">30 minutos</option>
+                            <option value="3600000">1 hora</option>
+                            <option value="86400000">1 dia</option>
                         </select>
                     </div>
                     <div style="margin-bottom: 12px;">
@@ -122,12 +151,14 @@
                         Investimento</button>
                 </form>
 
-                <form action="{{ url_for('investimento.vender') }}" method="POST" id="form-vender" style="display:none; margin-top: 22px;">
+                <form action="{{ url_for('investimento.vender') }}" method="POST" id="form-vender"
+                    style="display:none; margin-top: 22px;">
                     <input type="hidden" name="investimento_id" id="input-investimento-id-vender">
                     <div style="margin-bottom: 15px;">
-                        <p style="margin: 0 0 6px 0;"><small>Quantidade para vender:</small> <strong id="modal-qtd-vender-atual">1</strong></p>
-                        <input type="number" name="quantidade" value="1" min="1" id="input-quantidade-vender" class="form-input"
-                            style="width: 100%; padding: 8px;">
+                        <p style="margin: 0 0 6px 0;"><small>Quantidade para vender:</small> <strong
+                                id="modal-qtd-vender-atual">1</strong></p>
+                        <input type="number" name="quantidade" value="1" min="1" id="input-quantidade-vender"
+                            class="form-input" style="width: 100%; padding: 8px;">
                     </div>
                     <div style="margin-bottom: 12px;">
                         <small>Valor para vender:</small> <strong id="modal-total-venda">R$ 0,00</strong>
