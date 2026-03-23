@@ -1,9 +1,11 @@
 from flask import Blueprint, session, redirect, render_template, request
 import re
+import random
 from utils.validators import get_db
 from werkzeug.security import check_password_hash
 
 login_bp = Blueprint("login", __name__, url_prefix="/login")
+
 @login_bp.route("/", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
@@ -26,7 +28,6 @@ def login():
                 FROM usuarios 
                 WHERE email = ?
             """, (email,))
-            
             account = cursor.fetchone()
 
             if not account:
@@ -43,46 +44,66 @@ def login():
                     popup_type="error"
                 )
 
-            # Conta
+            # Buscar conta existente
             cursor.execute(
                 "SELECT id, numero_conta, saldo FROM contas WHERE usuario_id = ?",
                 (account[0],)
             )
             conta_result = cursor.fetchone()
-            
-        resultado = session.pop("resultado_emprego", None)
 
-        if resultado:
-            salario = resultado["salario"]
+            # Se não houver conta, criar uma nova
+            if conta_result is None:
+                numero_conta = str(random.randint(100000, 999999))
+                cursor.execute(
+                    "INSERT INTO contas (usuario_id, numero_conta, saldo) VALUES (?, ?, ?)",
+                    (account[0], numero_conta, 0.0)
+                )
+                conn.commit()
+                # Recuperar a conta recém-criada
+                cursor.execute(
+                    "SELECT id, numero_conta, saldo FROM contas WHERE usuario_id = ?",
+                    (account[0],)
+                )
+                conta_result = cursor.fetchone()
 
-            cursor.execute("""
-                UPDATE contas
-                SET salario = ?
-                WHERE id = ?
-            """, (salario, conta_result[0]))
+            # Agora conta_result é garantidamente não-None
+            resultado = session.pop("resultado_emprego", None)
 
-            conn.commit()
+            if resultado:
+                salario = resultado.get("salario")
+                if salario:
+                    try:
+                        cursor.execute("""
+                            UPDATE contas
+                            SET salario = ?
+                            WHERE id = ?
+                        """, (salario, conta_result[0]))
+                        conn.commit()
+                    except Exception as e:
+                        print("Erro ao atualizar salário:", e)
 
-        # 🔒 garante salário mínimo
-        cursor.execute("""
-            UPDATE contas
-            SET salario = 1518
-            WHERE id = ? AND (salario IS NULL OR salario <= 0)
-        """, (conta_result[0],))
+            # Garantir salário mínimo (se a coluna existir)
+            try:
+                cursor.execute("""
+                    UPDATE contas
+                    SET salario = 1518
+                    WHERE id = ? AND (salario IS NULL OR salario <= 0)
+                """, (conta_result[0],))
+                conn.commit()
+            except Exception as e:
+                print("Erro ao definir salário mínimo:", e)
 
-        conn.commit()
-
-        # Session
-        session['user_info'] = {
-            'user_id': account[0],
-            'user_name': account[1].split()[0],
-            'user_full_name': account[1],
-            'cpf': account[2],
-            'email': account[3],
-            'conta_id': conta_result[0],     
-            'numero_conta': conta_result[1],
-            'saldo': conta_result[2]
-        }
+            # Session
+            session['user_info'] = {
+                'user_id': account[0],
+                'user_name': account[1].split()[0],
+                'user_full_name': account[1],
+                'cpf': account[2],
+                'email': account[3],
+                'conta_id': conta_result[0],     
+                'numero_conta': conta_result[1],
+                'saldo': conta_result[2]
+            }
 
         return redirect("/home")
 

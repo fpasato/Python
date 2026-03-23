@@ -125,7 +125,12 @@ CREATE TABLE IF NOT EXISTS investimentos (
     
     ativo INTEGER DEFAULT 1,
     
+    ultimo_update DATETIME DEFAULT CURRENT_TIMESTAMP,
+    
     criado_em DATETIME DEFAULT CURRENT_TIMESTAMP
+    
+    preco_base REAL,
+    
 )
 """)
 
@@ -166,19 +171,45 @@ CREATE TABLE IF NOT EXISTS faturas (
 )
 """)
 
+
+# Tabela carteira_investimentos
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS carteira_investimentos (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    
     conta_id INTEGER NOT NULL,
     investimento_id INTEGER NOT NULL,
-    
-    quantidade REAL NOT NULL,
+    quantidade INTEGER NOT NULL,
     preco_medio REAL NOT NULL,
-    
-    criado_em DATETIME DEFAULT CURRENT_TIMESTAMP,
-    
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (conta_id) REFERENCES contas(id),
+    FOREIGN KEY (investimento_id) REFERENCES investimentos(id),
+    UNIQUE(conta_id, investimento_id)
+)
+""")
+
+# Tabela investimentos_temporarios
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS investimentos_temporarios (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    conta_id INTEGER NOT NULL,
+    investimento_id INTEGER NOT NULL,
+    quantidade INTEGER NOT NULL,
+    preco_medio REAL NOT NULL,
+    tempo_inicio INTEGER NOT NULL,
+    duracao INTEGER NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (conta_id) REFERENCES contas(id),
+    FOREIGN KEY (investimento_id) REFERENCES investimentos(id)
+)
+""")
+
+# Tabela historico_precos
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS historico_precos (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    investimento_id INTEGER NOT NULL,
+    preco REAL NOT NULL,
+    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (investimento_id) REFERENCES investimentos(id)
 )
 """)

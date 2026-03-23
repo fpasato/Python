@@ -158,17 +158,78 @@ def history_prices(investimento_id):
     conn.close()
     return [dict(row) for row in history]
 
-def remover_ativo_para_todos(investimento_id, conn):
-    # (não necessário para temporários)
-    pass
 
-def vender_ativo_para_todos(investimento_id, conn):
-    # (não necessário para temporários)
-    pass
+import random
+import sqlite3
+import threading
+from datetime import datetime
+from utils.validators import get_db
+
+# Lock para evitar concorrência na atualização de ativos
+_atualizar_lock = threading.Lock()
 
 def atualizar_ativos():
-    # (mantenha como estava, sem alterações)
-    pass
+    with _atualizar_lock:  # garante que apenas uma instância execute por vez
+        conn = get_db()
+        conn.row_factory = sqlite3.Row
+
+        # Busca os ativos ativos
+        ativos = conn.execute("""
+            SELECT id, valor_cota, risco, preco_base
+            FROM investimentos
+            WHERE ativo = 1
+        """).fetchall()
+
+        for ativo in ativos:
+            valor = ativo["valor_cota"]
+            preco_base = ativo["preco_base"]
+            risco = ativo["risco"]
+
+            # Parâmetros de volatilidade e tendência por risco
+            if risco == "baixo":
+                volatilidade = 0.001      # 0,1% por atualização
+                tendencia_anual = 0.03    # 3% ao ano
+            elif risco == "medio":
+                volatilidade = 0.002
+                tendencia_anual = 0.0
+            else:  # alto
+                volatilidade = 0.004
+                tendencia_anual = -0.01   # -1% ao ano
+
+            # Conversão de tendência anual para o intervalo (30 segundos)
+            intervalo_horas = 30 / 3600
+            drift = tendencia_anual * (intervalo_horas / 8760)
+
+            ruido = random.gauss(0, volatilidade)
+            reversao = (preco_base - valor) * 0.0003
+
+            variacao = drift + ruido + reversao
+            novo_valor = round(valor * (1 + variacao), 2)
+
+            if novo_valor <= 1:
+                print(f"Ativo {ativo['id']} atingiu R$1 - removendo da carteira sem reembolso")
+                novo_valor = 1
+                remover_ativo_para_todos(ativo["id"], conn)   # função auxiliar
+
+            # Atualiza preço do ativo
+            conn.execute("UPDATE investimentos SET valor_cota = ? WHERE id = ?", (novo_valor, ativo["id"]))
+
+            # Insere histórico – usando a coluna data, não timestamp
+            conn.execute("""
+                INSERT INTO historico_precos (investimento_id, preco, data)
+                VALUES (?, ?, ?)
+            """, (ativo["id"], novo_valor, datetime.now().isoformat()))
+
+        # Atualiza timestamp da última atualização (se a coluna existir)
+        try:
+            conn.execute("UPDATE investimentos SET ultimo_update = ?", (datetime.now().isoformat(),))
+        except sqlite3.OperationalError:
+            pass  # coluna não existe, ignora
+
+        conn.commit()
+        conn.close()
+        print(f"[{datetime.now()}] Ativos atualizados")
+    
 
 def busca_investimento_temporarios():
     conn = get_db()
