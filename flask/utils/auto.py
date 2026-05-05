@@ -11,13 +11,13 @@ def start_scheduler():
     scheduler.add_job(atualizar_ativos, 'interval', seconds=5)
 
     # Paga salários a cada 30 minutos 
-    scheduler.add_job(pagar_salarios, 'interval', minutes=1)
+    scheduler.add_job(pagar_salarios, 'interval', hours=1)
 
     # Gera faturas mensais obrigatórias a cada 30 minutos
-    scheduler.add_job(gerar_faturas_mensais_todos_usuarios, 'interval', minutes=30)
+    scheduler.add_job(gerar_faturas_mensais_todos_usuarios, 'interval', hours=1)
 
     # Gera faturas aleatórias a cada 25 minutos
-    scheduler.add_job(gerar_faturas_aleatorias_todos_usuarios, 'interval', minutes=25)
+    scheduler.add_job(gerar_faturas_aleatorias_todos_usuarios, 'interval', hours=1)
     
     # Aplica juros em faturas atrasadas
     scheduler.add_job(checa_juros, 'interval', minutes=5)

@@ -160,7 +160,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div><small>Lucro/Prejuízo:</small> <strong class="card-lucro">${formatBRL(inv.lucroPrejuizo)}</strong></div>
                     <div><small>Tempo restante:</small> <strong class="tempo-restante">--</strong></div>
                 </div>
-                <button class="btn-sell" disabled style="opacity:0.5; cursor:not-allowed;">Vender (prazo)</button>
             `;
             container.appendChild(card);
         }

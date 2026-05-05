@@ -1,0 +1,12 @@
+Error: Algo deu errado LogFileMixin
+Success: Que legal  LogFileMixin
+Error: Algo deu errado LogFileMixin
+Success: Que legal  LogFileMixin
+Error: Algo deu errado no main.py LogFileMixin
+Success: Que legal no main.py LogFileMixin
+
+
+Success: Xiaomi 10 esta ligado. Smartphone
+Success: Iphone esta ligado. Smartphone
+Error: Xiaomi 10 esta desligado. Smartphone
+Error: Iphone esta desligado. Smartphone

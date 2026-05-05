@@ -1,5 +1,6 @@
 from flask import Flask, redirect, session
 from utils.auto import start_scheduler
+import os
 
 from routes.home import home_bp
 from routes.login import login_bp  
@@ -18,7 +19,7 @@ from routes.extrato import extrato_bp
 
 
 app = Flask(__name__)
-app.secret_key = "segredo_super_secreto"
+app.secret_key = os.getenv("SECRET_KEY", "dev_key")
 
 # Registra todos os blueprints
 app.register_blueprint(home_bp)
@@ -46,8 +47,11 @@ def logout():
     return redirect("/login")
 
 
+
+if not getattr(app, "_scheduler_started", False):
+    start_scheduler()
+    app._scheduler_started = True
+
 if __name__ == "__main__":
-    if not getattr(app, "_scheduler_started", False):
-        start_scheduler()
-        app._scheduler_started = True
-    app.run(debug=True)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
